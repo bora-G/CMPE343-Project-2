@@ -18,7 +18,7 @@ public class DateInput {
                 return null;
 
             try {
-                LocalDate date = LocalDate.parse(input);  // 30 Şubat → otomatik hata
+                LocalDate date = LocalDate.parse(input);  
                 LocalDate today = LocalDate.now();
 
                 if (date.isAfter(today)) {
@@ -34,3 +34,4 @@ public class DateInput {
         }
     }
 }
+
