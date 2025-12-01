@@ -1,26 +1,25 @@
-package database;
+package com.cmpe343.project2.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DataBaseConnection {
+public class DbConnection {
 
-    private static final String URL =
-            "jdbc:mysql://localhost:3306/Group5?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
+    private static final String URL = "jdbc:mysql://localhost:3306/cmpe343";
+    // Change USER and PASSWORD according to your own MySQL setup
+    private static final String USER = "myuser@localhost";
+    private static final String PASSWORD = "1234";
 
-    private static final String USER = "root";       // kendi MySQL root kullanıcı adın
-    private static final String PASSWORD = "1234";   // kendi şifren
+    private static Connection instance;
 
-    private DataBaseConnection() {}
+    private DbConnection() {
+    }
 
-    public static Connection getConnection() {
-        try {
-            return DriverManager.getConnection(URL, USER, PASSWORD);
-        } catch (SQLException e) {
-            System.out.println("Veritabanına bağlanılamadı!");
-            e.printStackTrace();
-            return null;
+    public static Connection getConnection() throws SQLException {
+        if (instance == null || instance.isClosed()) {
+            instance = DriverManager.getConnection(URL, USER, PASSWORD);
         }
+        return instance;
     }
 }
