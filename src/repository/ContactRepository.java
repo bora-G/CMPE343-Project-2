@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map; 
 
 public class ContactRepository {
 
@@ -22,8 +23,8 @@ public class ContactRepository {
     public List<Contact> findAll() {
         List<Contact> contacts = new ArrayList<>();
         try (Connection connection = requireConnection();
-                PreparedStatement statement = connection.prepareStatement(BASE_SELECT + " ORDER BY contact_id");
-                ResultSet resultSet = statement.executeQuery()) {
+             PreparedStatement statement = connection.prepareStatement(BASE_SELECT + " ORDER BY contact_id");
+             ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 contacts.add(mapRow(resultSet));
             }
@@ -35,7 +36,7 @@ public class ContactRepository {
 
     public Contact findById(int contactId) {
         try (Connection connection = requireConnection();
-                PreparedStatement statement = connection.prepareStatement(BASE_SELECT + " WHERE contact_id = ?")) {
+             PreparedStatement statement = connection.prepareStatement(BASE_SELECT + " WHERE contact_id = ?")) {
             statement.setInt(1, contactId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -48,33 +49,13 @@ public class ContactRepository {
         return null;
     }
 
-    public List<Contact> searchByField(String field, String value) {
-        String sql = "SELECT * FROM contacts WHERE " + field + " LIKE ?";
-        List<Contact> results = new ArrayList<>();
-
-        try (Connection connection = requireConnection();
-                PreparedStatement st = connection.prepareStatement(sql)) {
-
-            st.setString(1, "%" + value + "%"); 
-            ResultSet rs = st.executeQuery();
-
-            while (rs.next()) {
-                results.add(mapRow(rs));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Search failed for field: " + field, e);
-        }
-
-        return results;
-    }
-
     public boolean insert(Contact contact) {
         String sql = "INSERT INTO contacts " +
                 "(first_name, middle_name, last_name, nickname, phone_primary, phone_secondary, email, linkedin_url, birth_date) "
                 +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = requireConnection();
-                PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             bindContact(statement, contact);
             int affected = statement.executeUpdate();
             if (affected > 0) {
@@ -96,7 +77,7 @@ public class ContactRepository {
                 "phone_primary = ?, phone_secondary = ?, email = ?, linkedin_url = ?, birth_date = ? " +
                 "WHERE contact_id = ?";
         try (Connection connection = requireConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             int index = bindContact(statement, contact);
             statement.setInt(index, contact.getContactId());
             return statement.executeUpdate() > 0;
@@ -107,13 +88,129 @@ public class ContactRepository {
 
     public boolean delete(int contactId) {
         try (Connection connection = requireConnection();
-                PreparedStatement statement = connection
-                        .prepareStatement("DELETE FROM contacts WHERE contact_id = ?")) {
+             PreparedStatement statement = connection
+                     .prepareStatement("DELETE FROM contacts WHERE contact_id = ?")) {
             statement.setInt(1, contactId);
             return statement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new RuntimeException("Failed to delete contact " + contactId, e);
         }
+    }
+
+    public List<Contact> searchByField(String field, String value) {
+        String sql = "SELECT * FROM contacts WHERE " + field + " LIKE ?";
+        List<Contact> results = new ArrayList<>();
+
+        try (Connection connection = requireConnection();
+             PreparedStatement st = connection.prepareStatement(sql)) {
+
+            st.setString(1, "%" + value + "%");
+            ResultSet rs = st.executeQuery();
+
+            while (rs.next()) {
+                results.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Search failed for field: " + field, e);
+        }
+
+        return results;
+    }
+
+    public List<Contact> searchByLinkedinPresence(boolean hasLinkedin) {
+        String sql = BASE_SELECT;
+
+        if (hasLinkedin) {
+            sql += " WHERE linkedin_url IS NOT NULL AND linkedin_url <> ''";
+        } else {
+            sql += " WHERE linkedin_url IS NULL OR linkedin_url = ''";
+        }
+
+        List<Contact> results = new ArrayList<>();
+
+        try (Connection connection = requireConnection();
+             PreparedStatement st = connection.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
+
+            while (rs.next()) {
+                results.add(mapRow(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to search by LinkedIn presence", e);
+        }
+
+        return results;
+    }
+
+    public List<Contact> searchByMultipleCriteria(Map<String, String> criteria) {
+        if (criteria == null || criteria.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM contacts WHERE 1=1");
+        List<Object> values = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry : criteria.entrySet()) {
+            sqlBuilder.append(" AND ").append(entry.getKey()).append(" LIKE ?");
+            values.add("%" + entry.getValue() + "%");
+        }
+
+        List<Contact> results = new ArrayList<>();
+        try (Connection connection = requireConnection();
+             PreparedStatement st = connection.prepareStatement(sqlBuilder.toString())) {
+
+            for (int i = 0; i < values.size(); i++) {
+                st.setObject(i + 1, values.get(i));
+            }
+
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    results.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Multi-field search failed", e);
+        }
+        return results;
+    }
+
+    public List<Contact> findAllSorted(String sortField, String sortDirection) {
+        List<String> allowedFields = List.of(
+            "contact_id", "first_name", "middle_name", "last_name", "nickname", 
+            "phone_primary", "phone_secondary", "email", "linkedin_url", 
+            "birth_date", "created_at", "updated_at"
+        );
+        
+        if (!allowedFields.contains(sortField)) {
+            sortField = "first_name"; 
+        }
+        
+        if (!"DESC".equalsIgnoreCase(sortDirection)) {
+            sortDirection = "ASC";
+        }
+
+        String sql = BASE_SELECT + " ORDER BY " + sortField + " " + sortDirection;
+        
+        List<Contact> contacts = new ArrayList<>();
+        try (Connection connection = requireConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                contacts.add(mapRow(resultSet));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load sorted contacts", e);
+        }
+        return contacts;
+    }
+
+    private Connection requireConnection() throws SQLException {
+        Connection connection = DataBaseConnection.getConnection();
+        if (connection == null) {
+            throw new SQLException("Unable to obtain database connection");
+        }
+        return connection;
     }
 
     private int bindContact(PreparedStatement statement, Contact contact) throws SQLException {
@@ -161,40 +258,5 @@ public class ContactRepository {
         contact.setCreatedAt(resultSet.getTimestamp("created_at"));
         contact.setUpdatedAt(resultSet.getTimestamp("updated_at"));
         return contact;
-    }
-
-    public List<Contact> searchByLinkedinPresence(boolean hasLinkedin) {
-    String sql = BASE_SELECT;
-
-    if (hasLinkedin) {
-        
-        sql += " WHERE linkedin_url IS NOT NULL AND linkedin_url <> ''";
-    } else {
-        
-        sql += " WHERE linkedin_url IS NULL OR linkedin_url = ''";
-    }
-
-    List<Contact> results = new ArrayList<>();
-
-    try (Connection connection = requireConnection();
-         PreparedStatement st = connection.prepareStatement(sql);
-         ResultSet rs = st.executeQuery()) {
-
-        while (rs.next()) {
-            results.add(mapRow(rs));
-        }
-
-    } catch (SQLException e) {
-        throw new RuntimeException("Failed to search by LinkedIn presence", e);
-    }
-
-    return results;
-}
-    private Connection requireConnection() throws SQLException {
-        Connection connection = DataBaseConnection.getConnection();
-        if (connection == null) {
-            throw new SQLException("Unable to obtain database connection");
-        }
-        return connection;
     }
 }
