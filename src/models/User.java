@@ -2,6 +2,8 @@ package models;
 
 import java.sql.Date;
 
+import services.AuthService;
+
 public abstract class User {
 
     private int userId;
@@ -16,11 +18,16 @@ public abstract class User {
     public abstract void showUserMenu();
 
     public void changePassword() {
-        //TODO
+        AuthService authService = new AuthService();
+        boolean success = authService.changePasswordWithPrompt(this);
+
+        if (!success) {
+            System.out.println("Password change failed.");
+        }
     }
 
     public void logout() {
-        //TODO
+         System.out.println("Logging out...");
     }
 
     public int getUserId() {
