@@ -24,6 +24,7 @@ public class Senior extends User {
             System.out.println("6) Update contact");
             System.out.println("7) Delete contact");
             System.out.println("8) Change password");
+            System.out.println("9) Undo last operation");
             System.out.println("0) Logout");
             System.out.print("Your choice: ");
 
@@ -61,6 +62,10 @@ public class Senior extends User {
 
                 case "8":
                     changePassword();
+                    break;
+
+                case "9":
+                    contactService.undoLastOperation();
                     break;
 
                 case "0":

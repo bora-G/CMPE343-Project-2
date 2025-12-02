@@ -12,7 +12,6 @@ import input.Input;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Scanner;
 
 public class AuthService {
 
@@ -63,17 +62,19 @@ public class AuthService {
             return new Tester();
         }
 
-        switch (role.toLowerCase()) {
-            case "tester":
-                return new Tester();
-            case "junior":
-                return new Junior();
-            case "senior":
-                return new Senior();
-            case "manager":
-                return new Manager();
-            default:
-                return new Tester();
+        String r = role.toLowerCase().trim();
+
+        if (r.contains("tester")) {
+            return new Tester();
+        } else if (r.contains("junior")) {
+            return new Junior();
+        } else if (r.contains("senior")) {
+            return new Senior();
+        } else if (r.contains("manager")) {
+            return new Manager();
+        } else {
+            // tanınmayan rol → default Tester
+            return new Tester();
         }
     }
 

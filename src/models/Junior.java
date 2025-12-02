@@ -20,9 +20,9 @@ public class Junior extends User {
             System.out.println("2) Search by single field");
             System.out.println("3) Search by multiple fields");
             System.out.println("4) Sort contacts");
-            System.out.println("5) Add new contact");
-            System.out.println("6) Update existing contact");
-            System.out.println("7) Change password");
+            System.out.println("5) Update existing contact");
+            System.out.println("6) Change password");
+            System.out.println("7) Undo last operation");
             System.out.println("0) Logout");
             System.out.print("Your choice: ");
 
@@ -47,15 +47,15 @@ public class Junior extends User {
                     break;
 
                 case "5":
-                    contactService.addContact(this);
-                    break;
-
-                case "6":
                     contactService.updateContact(this);
                     break;
 
-                case "7":
+                case "6":
                     changePassword();
+                    break;
+
+                case "7":
+                    contactService.undoLastOperation();
                     break;
 
                 case "0":

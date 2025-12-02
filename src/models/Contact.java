@@ -18,31 +18,6 @@ public class Contact {
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
-    private String safe(Object o) {
-        if (o == null) {
-            return "No data available";
-        }
-        return o.toString();
-    }
-
-    public String toString() {
-        return "Contact " + contactId + "\n" +
-                "----------------------------\n" +
-                "First Name     : " + safe(firstName) + "\n" +
-                "Middle Name    : " + safe(middleName) + "\n" +
-                "Last Name      : " + safe(lastName) + "\n" +
-                "Nickname       : " + safe(nickname) + "\n" +
-                "\n" +
-                "Primary Phone  : " + safe(phonePrimary) + "\n" +
-                "Secondary Phone: " + safe(phoneSecondary) + "\n" +
-                "\n" +
-                "E-mail         : " + safe(email) + "\n" +
-                "LinkedIn       : " + safe(linkedinUrl) + "\n" +
-                "\n" +
-                "Birth Date     : " + safe(birthDate) + "\n" +
-                "Created At     : " + safe(createdAt) + "\n" +
-                "Updated At     : " + safe(updatedAt) + "\n";
-    }
 
     public int getContactId() {
         return contactId;
