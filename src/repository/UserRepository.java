@@ -113,6 +113,25 @@ public class UserRepository {
         }
         return connection;
     }
+    public boolean update(User user) {
+        String sql = "UPDATE users SET username = ?, password_hash = ?, name = ?, surname = ?, role = ? WHERE user_id = ?";
+
+        try (Connection conn = requireConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+
+            st.setString(1, user.getUsername());
+            st.setString(2, user.getPassword_hash());
+            st.setString(3, user.getName());
+            st.setString(4, user.getSurname());
+            st.setString(5, user.getRole());
+            st.setInt(6, user.getUserId());
+
+            return st.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update user " + user.getUserId(), e);
+        }
+    }
 
     private static class BasicUser extends User {
         @Override

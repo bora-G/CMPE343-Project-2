@@ -25,6 +25,15 @@ public abstract class User {
             System.out.println("Password change failed.");
         }
     }
+    private Double salary;
+
+    public Double getSalary() {
+        return salary;
+    }
+
+    public void setSalary(Double salary) {
+        this.salary = salary;
+    }
 
     public void logout() {
          System.out.println("Logging out...");

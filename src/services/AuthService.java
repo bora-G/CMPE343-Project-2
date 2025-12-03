@@ -89,7 +89,7 @@ public class AuthService {
         target.setUpdated_at(source.getUpdated_at());
     }
 
-    private String hashPassword(String passwordPlainText) {
+public static String hashPassword(String passwordPlainText) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(passwordPlainText.getBytes(StandardCharsets.UTF_8));

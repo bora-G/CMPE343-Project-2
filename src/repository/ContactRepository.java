@@ -98,7 +98,7 @@ public class ContactRepository {
     }
 
     public List<Contact> searchByField(String field, String value) {
-        String sql = "SELECT * FROM contacts WHERE " + field + " LIKE ?";
+        String sql = "SELECT * FROM contacts WHERE " + field + " COLLATE utf8mb4_bin LIKE ?";
         List<Contact> results = new ArrayList<>();
 
         try (Connection connection = requireConnection();

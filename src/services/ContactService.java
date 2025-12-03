@@ -590,6 +590,29 @@ public class ContactService {
         return results;
     }
 
+    public void showStatistics() {
+        List<Contact> contacts = contactRepository.findAll();
+
+        System.out.println("\n=== CONTACT STATISTICS ===");
+        System.out.println("Total contacts: " + contacts.size());
+
+        int withEmail = 0;
+        int withLinkedIn = 0;
+
+        for (Contact c : contacts) {
+            if (c.getEmail() != null && !c.getEmail().isBlank()) {
+                withEmail++;
+            }
+            if (c.getLinkedinUrl() != null && !c.getLinkedinUrl().isBlank()) {
+                withLinkedIn++;
+            }
+        }
+
+        System.out.println("Contacts with e-mail: " + withEmail);
+        System.out.println("Contacts with LinkedIn: " + withLinkedIn);
+        System.out.println("==========================\n");
+    }
+
     private String formatContact(Contact c) {
         return "Contact " + c.getContactId() + "\n" +
                 "----------------------------\n" +
