@@ -7,6 +7,11 @@ import input.Input;
 import input.MenuInput;
 import input.DateInput;
 
+import Undo.UndoManager;
+import Undo.AddContactCommand;
+import Undo.UpdateContactCommand;
+import Undo.DeleteContactCommand;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,15 +22,21 @@ import java.time.LocalDate;
 public class ContactService {
 
     private final ContactRepository contactRepository;
+    private final UndoManager undoManager;
 
     public ContactService() {
         this.contactRepository = new ContactRepository();
+        this.undoManager = new UndoManager();
     }
 
     public List<Contact> listAllContacts() {
         List<Contact> contacts = contactRepository.findAll();
         printResults(contacts);
         return contacts;
+    }
+
+    public void undoLastOperation() {
+        undoManager.undoLast();
     }
 
     public List<Contact> searchBySingleField() {
@@ -55,7 +66,8 @@ public class ContactService {
             case 1: {
                 System.out.print("Enter Contact ID (or Q to go back): ");
                 String input = Input.scanner.nextLine().trim();
-                if (input.equalsIgnoreCase("q")) return results;
+                if (input.equalsIgnoreCase("q"))
+                    return results;
                 try {
                     int id = Integer.parseInt(input);
                     Contact found = contactRepository.findById(id);
@@ -83,13 +95,15 @@ public class ContactService {
                 break;
             case 6: {
                 String phone = askPhoneNumber(Input.scanner, "Enter 10-digit primary phone (or Q to go back): ");
-                if (phone == null) return results;
+                if (phone == null)
+                    return results;
                 results = contactRepository.searchByField("phone_primary", phone);
                 break;
             }
             case 7: {
                 String phone = askPhoneNumber(Input.scanner, "Enter 10-digit secondary phone (or Q to go back): ");
-                if (phone == null) return results;
+                if (phone == null)
+                    return results;
                 results = contactRepository.searchByField("phone_secondary", phone);
                 break;
             }
@@ -97,7 +111,8 @@ public class ContactService {
                 // Modified to allow partial search or domain search
                 System.out.print("Enter email part or domain (e.g. gmail.com): ");
                 String val = Input.scanner.nextLine().trim();
-                if(!val.isEmpty()) results = contactRepository.searchByField("email", val);
+                if (!val.isEmpty())
+                    results = contactRepository.searchByField("email", val);
                 break;
             }
             case 9: {
@@ -127,35 +142,51 @@ public class ContactService {
     public List<Contact> searchByMultipleFields() {
         System.out.println("\n=== Multi-Field Search ===");
         System.out.println("Add filters one by one. Enter '0' to execute search.");
-        
+
         Map<String, String> criteria = new HashMap<>();
-        
+
         while (true) {
             if (!criteria.isEmpty()) {
                 System.out.println("Current filters: " + criteria);
             }
-            
+
             System.out.println("1- First Name");
             System.out.println("2- Last Name");
             System.out.println("3- Phone Number");
             System.out.println("4- Email");
             System.out.println("5- Nickname");
             System.out.println("0- EXECUTE SEARCH");
-            
+
             Integer choice = MenuInput.readMenuChoice(0, 5, "Add Filter");
-            if (choice == null || choice == 0) break;
+            if (choice == null || choice == 0)
+                break;
 
             String dbField = "";
             String prompt = "";
-            
+
             switch (choice) {
-                case 1: dbField = "first_name"; prompt = "First Name contains: "; break;
-                case 2: dbField = "last_name"; prompt = "Last Name contains: "; break;
-                case 3: dbField = "phone_primary"; prompt = "Phone contains: "; break;
-                case 4: dbField = "email"; prompt = "Email contains: "; break;
-                case 5: dbField = "nickname"; prompt = "Nickname contains: "; break;
+                case 1:
+                    dbField = "first_name";
+                    prompt = "First Name contains: ";
+                    break;
+                case 2:
+                    dbField = "last_name";
+                    prompt = "Last Name contains: ";
+                    break;
+                case 3:
+                    dbField = "phone_primary";
+                    prompt = "Phone contains: ";
+                    break;
+                case 4:
+                    dbField = "email";
+                    prompt = "Email contains: ";
+                    break;
+                case 5:
+                    dbField = "nickname";
+                    prompt = "Nickname contains: ";
+                    break;
             }
-            
+
             System.out.print(prompt);
             String val = Input.scanner.nextLine().trim();
             if (!val.isEmpty()) {
@@ -169,7 +200,7 @@ public class ContactService {
         }
 
         List<Contact> results = contactRepository.searchByMultipleCriteria(criteria);
-        printResults(results); 
+        printResults(results);
         return results;
     }
 
@@ -188,24 +219,49 @@ public class ContactService {
         System.out.println("10- Birth Date");
         System.out.println("11- Creation Date");
         System.out.println("12- Update Date");
-        
+
         Integer fieldChoice = MenuInput.readMenuChoice(1, 12, "Select field to sort by");
-        if (fieldChoice == null) return new ArrayList<>();
+        if (fieldChoice == null)
+            return new ArrayList<>();
 
         String field = "first_name"; // Default
         switch (fieldChoice) {
-            case 1: field = "contact_id"; break;
-            case 2: field = "first_name"; break;
-            case 3: field = "middle_name"; break;
-            case 4: field = "last_name"; break;
-            case 5: field = "nickname"; break;
-            case 6: field = "phone_primary"; break;
-            case 7: field = "phone_secondary"; break;
-            case 8: field = "email"; break;
-            case 9: field = "linkedin_url"; break;
-            case 10: field = "birth_date"; break;
-            case 11: field = "created_at"; break;
-            case 12: field = "updated_at"; break;
+            case 1:
+                field = "contact_id";
+                break;
+            case 2:
+                field = "first_name";
+                break;
+            case 3:
+                field = "middle_name";
+                break;
+            case 4:
+                field = "last_name";
+                break;
+            case 5:
+                field = "nickname";
+                break;
+            case 6:
+                field = "phone_primary";
+                break;
+            case 7:
+                field = "phone_secondary";
+                break;
+            case 8:
+                field = "email";
+                break;
+            case 9:
+                field = "linkedin_url";
+                break;
+            case 10:
+                field = "birth_date";
+                break;
+            case 11:
+                field = "created_at";
+                break;
+            case 12:
+                field = "updated_at";
+                break;
         }
 
         System.out.println("1- Ascending (A-Z / Oldest First)");
@@ -219,7 +275,6 @@ public class ContactService {
     }
 
     public boolean addContact(User actingUser) {
-        // PERMISSION CHECK: Only Senior Developer and Manager
         String role = actingUser.getRole();
         if (!role.contains("Senior") && !role.contains("Manager")) {
             System.out.println("!!! ACCESS DENIED: Only Senior Developers and Managers can add contacts.");
@@ -228,15 +283,15 @@ public class ContactService {
 
         System.out.println("\n=== Add New Contact ===");
         Contact newContact = new Contact();
-        
+
         System.out.print("First Name (Required): ");
         String fName = Input.scanner.nextLine().trim();
         if (fName.isEmpty()) {
-            System.out.println("Error: First Name is required!"); 
+            System.out.println("Error: First Name is required!");
             return false;
         }
         newContact.setFirstName(fName);
-        
+
         System.out.print("Last Name (Required): ");
         String lName = Input.scanner.nextLine().trim();
         if (lName.isEmpty()) {
@@ -244,43 +299,68 @@ public class ContactService {
             return false;
         }
         newContact.setLastName(lName);
-        
+
         String phone = askPhoneNumber(Input.scanner, "Primary Phone (10 digits): ");
-        if(phone == null) return false; // Aborted
+        if (phone == null)
+            return false; // Aborted
         newContact.setPhonePrimary(phone);
-        
+
         System.out.print("Middle Name (Optional): ");
         String middle = Input.scanner.nextLine().trim();
-        if(!middle.isEmpty()) newContact.setMiddleName(middle);
-        
+        if (!middle.isEmpty())
+            newContact.setMiddleName(middle);
+
         System.out.print("Nickname (Optional): ");
         String nick = Input.scanner.nextLine().trim();
-        if(!nick.isEmpty()) newContact.setNickname(nick);
+        if (!nick.isEmpty())
+            newContact.setNickname(nick);
 
         System.out.print("Email (Optional): ");
         String email = Input.scanner.nextLine().trim();
-        if(!email.isEmpty()) newContact.setEmail(email);
+        if (!email.isEmpty())
+            newContact.setEmail(email);
 
         System.out.print("LinkedIn URL (Optional): ");
         String linked = Input.scanner.nextLine().trim();
-        if(!linked.isEmpty()) newContact.setLinkedinUrl(linked);
+        if (!linked.isEmpty())
+            newContact.setLinkedinUrl(linked);
 
         LocalDate bday = DateInput.readDate("Birth Date");
-        if(bday != null) {
+        if (bday != null) {
             newContact.setBirthDate(java.sql.Date.valueOf(bday));
         }
-
+        System.out.println("DEBUG lastName before insert = '" + newContact.getLastName() + "'");
         boolean success = contactRepository.insert(newContact);
         if (success) {
             System.out.println("SUCCESS: New contact added. ID: " + newContact.getContactId());
+
+            undoManager.push(new AddContactCommand(newContact.getContactId(), contactRepository));
+
         } else {
             System.out.println("ERROR: Could not add contact.");
         }
         return success;
+
+    }
+
+    private Contact copyContact(Contact c) {
+        Contact copy = new Contact();
+        copy.setContactId(c.getContactId());
+        copy.setFirstName(c.getFirstName());
+        copy.setMiddleName(c.getMiddleName());
+        copy.setLastName(c.getLastName());
+        copy.setNickname(c.getNickname());
+        copy.setPhonePrimary(c.getPhonePrimary());
+        copy.setPhoneSecondary(c.getPhoneSecondary());
+        copy.setEmail(c.getEmail());
+        copy.setLinkedinUrl(c.getLinkedinUrl());
+        copy.setBirthDate(c.getBirthDate());
+        copy.setCreatedAt(c.getCreatedAt());
+        copy.setUpdatedAt(c.getUpdatedAt());
+        return copy;
     }
 
     public boolean updateContact(User actingUser) {
-        // PERMISSION CHECK: Junior, Senior, and Manager (EXCEPT Tester)
         if (actingUser.getRole().contains("Tester")) {
             System.out.println("!!! ACCESS DENIED: Testers cannot update contacts.");
             return false;
@@ -288,47 +368,59 @@ public class ContactService {
 
         System.out.print("Enter ID of the contact to update (or Q to cancel): ");
         String input = Input.scanner.nextLine();
-        if(input.equalsIgnoreCase("q")) return false;
+        if (input.equalsIgnoreCase("q"))
+            return false;
 
         try {
             int id = Integer.parseInt(input);
             Contact contact = contactRepository.findById(id);
-            if(contact == null) {
+            if (contact == null) {
                 System.out.println("Contact not found with this ID.");
                 return false;
             }
+
+            Contact oldSnapshot = copyContact(contact);
 
             System.out.println("Updating: " + contact.getFirstName() + " " + contact.getLastName());
             System.out.println("(Press Enter to keep current value)");
 
             System.out.print("First Name (" + contact.getFirstName() + "): ");
             String f = Input.scanner.nextLine().trim();
-            if(!f.isEmpty()) contact.setFirstName(f);
+            if (!f.isEmpty())
+                contact.setFirstName(f);
 
             System.out.print("Last Name (" + contact.getLastName() + "): ");
             String l = Input.scanner.nextLine().trim();
-            if(!l.isEmpty()) contact.setLastName(l);
-            
+            if (!l.isEmpty())
+                contact.setLastName(l);
+
             System.out.print("Phone (" + contact.getPhonePrimary() + "): ");
             String p = Input.scanner.nextLine().trim();
-            if(!p.isEmpty()) {
-                 if (p.matches("^[0-9]{10}$")) {
-                     contact.setPhonePrimary(p);
-                 } else {
-                     System.out.println("Invalid format. Phone not updated.");
-                 }
+            if (!p.isEmpty()) {
+                if (p.matches("^[0-9]{10}$")) {
+                    contact.setPhonePrimary(p);
+                } else {
+                    System.out.println("Invalid format. Phone not updated.");
+                }
             }
-            
+
             System.out.print("Email (" + (contact.getEmail() == null ? "none" : contact.getEmail()) + "): ");
             String e = Input.scanner.nextLine().trim();
-            if(!e.isEmpty()) contact.setEmail(e);
+            if (!e.isEmpty())
+                contact.setEmail(e);
 
             boolean success = contactRepository.update(contact);
-            if(success) System.out.println("SUCCESS: Contact updated.");
-            else System.out.println("ERROR: Update failed.");
+            if (success) {
+                System.out.println("SUCCESS: Contact updated.");
+
+                undoManager.push(new UpdateContactCommand(oldSnapshot, contactRepository));
+
+            } else {
+                System.out.println("ERROR: Update failed.");
+            }
             return success;
 
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             System.out.println("Invalid ID format.");
             return false;
         }
@@ -344,29 +436,37 @@ public class ContactService {
 
         System.out.print("Enter ID of the contact to DELETE (or Q to cancel): ");
         String input = Input.scanner.nextLine();
-        if(input.equalsIgnoreCase("q")) return false;
+        if (input.equalsIgnoreCase("q"))
+            return false;
 
         try {
             int id = Integer.parseInt(input);
             Contact contact = contactRepository.findById(id);
-            if(contact == null) {
+            if (contact == null) {
                 System.out.println("Contact not found.");
                 return false;
             }
 
-            System.out.println("WARNING: You are about to delete " + contact.getFirstName() + " " + contact.getLastName());
+            System.out.println(
+                    "WARNING: You are about to delete " + contact.getFirstName() + " " + contact.getLastName());
             System.out.print("Are you sure? (Type 'YES' to confirm): ");
             String confirm = Input.scanner.nextLine().trim();
-            
-            if(confirm.equals("YES")) {
+
+            if (confirm.equalsIgnoreCase("yes")) {
                 boolean success = contactRepository.delete(id);
-                if(success) System.out.println("SUCCESS: Contact deleted.");
-                else System.out.println("ERROR: Delete failed.");
+                if (success) {
+                    System.out.println("SUCCESS: Contact deleted.");
+
+                    undoManager.push(new DeleteContactCommand(contact, contactRepository));
+
+                } else {
+                    System.out.println("ERROR: Delete failed.");
+                }
                 return success;
             } else {
                 System.out.println("Delete cancelled.");
             }
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             System.out.println("Invalid ID format.");
         }
         return false;
@@ -379,25 +479,23 @@ public class ContactService {
             System.out.println("No records found.");
             return;
         }
-        System.out.println("--------------------------------------------------------------------------------");
-        System.out.printf("%-5s %-15s %-15s %-15s %-20s%n", "ID", "First Name", "Last Name", "Phone", "Email");
-        System.out.println("--------------------------------------------------------------------------------");
+
+        System.out.println("================================================================================");
+
         for (Contact c : contacts) {
-            System.out.printf("%-5d %-15s %-15s %-15s %-20s%n", 
-                c.getContactId(), 
-                c.getFirstName(), 
-                c.getLastName(), 
-                c.getPhonePrimary(),
-                (c.getEmail() != null ? c.getEmail() : ""));
+            System.out.println(formatContact(c));
+            System.out.println("--------------------------------------------------------------------------------");
         }
-        System.out.println("--------------------------------------------------------------------------------");
-        System.out.println("Total: " + contacts.size() + " records.");
+
+        System.out.println("TOTAL: " + contacts.size() + " record(s).");
+        System.out.println("================================================================================");
     }
 
     private List<Contact> searchByStringField(String dbField, String displayName) {
         System.out.print("Enter " + displayName + " (or part of it): ");
         String val = Input.scanner.nextLine().trim();
-        if (val.isEmpty()) return new ArrayList<>();
+        if (val.isEmpty())
+            return new ArrayList<>();
         return contactRepository.searchByField(dbField, val);
     }
 
@@ -406,7 +504,8 @@ public class ContactService {
             System.out.print(message);
             String input = scanner.nextLine().trim();
 
-            if(input.equalsIgnoreCase("q")) return null;
+            if (input.equalsIgnoreCase("q"))
+                return null;
 
             if (input.matches("^[0-9]{10}$")) {
                 return input;
@@ -431,22 +530,25 @@ public class ContactService {
         if (mode == null) return results;
 
         switch (mode) {
-            case 1: { 
+            case 1: {
                 // Uses your existing readDate
                 LocalDate date = DateInput.readDate("Enter " + label);
-                if (date == null) return results;
+                if (date == null)
+                    return results;
                 results = contactRepository.searchByField(fieldName, date.toString());
                 break;
             }
-            case 2: { 
+            case 2: {
                 // Calls the NEW static method
                 Integer day = DateInput.readDay();
-                if (day == null) return results;
-                
+                if (day == null)
+                    return results;
+
                 // Calls the NEW static method
                 Integer month = DateInput.readMonth();
-                if (month == null) return results;
-                
+                if (month == null)
+                    return results;
+
                 String dd = String.format("%02d", day);
                 String mm = String.format("%02d", month);
                 // Pattern: ____-MM-DD
@@ -455,8 +557,9 @@ public class ContactService {
             }
             case 3: {
                 Integer day = DateInput.readDay();
-                if (day == null) return results;
-                
+                if (day == null)
+                    return results;
+
                 String dd = String.format("%02d", day);
                 // Pattern: ____-__-DD
                 results = contactRepository.searchByField(fieldName, "____-__-" + dd);
@@ -464,8 +567,9 @@ public class ContactService {
             }
             case 4: {
                 Integer month = DateInput.readMonth();
-                if (month == null) return results;
-                
+                if (month == null)
+                    return results;
+
                 String mm = String.format("%02d", month);
                 // Pattern: ____-MM-__
                 results = contactRepository.searchByField(fieldName, "____-" + mm + "-__");
@@ -473,8 +577,9 @@ public class ContactService {
             }
             case 5: {
                 Integer year = DateInput.readYear();
-                if (year == null) return results;
-                
+                if (year == null)
+                    return results;
+
                 String yy = String.format("%04d", year);
                 // Pattern: YYYY-__-__
                 results = contactRepository.searchByField(fieldName, yy + "-__-__");
@@ -483,4 +588,51 @@ public class ContactService {
         }
         return results;
     }
+
+    public void showStatistics() {
+        List<Contact> contacts = contactRepository.findAll();
+
+        System.out.println("\n=== CONTACT STATISTICS ===");
+        System.out.println("Total contacts: " + contacts.size());
+
+        int withEmail = 0;
+        int withLinkedIn = 0;
+
+        for (Contact c : contacts) {
+            if (c.getEmail() != null && !c.getEmail().isBlank()) {
+                withEmail++;
+            }
+            if (c.getLinkedinUrl() != null && !c.getLinkedinUrl().isBlank()) {
+                withLinkedIn++;
+            }
+        }
+
+        System.out.println("Contacts with e-mail: " + withEmail);
+        System.out.println("Contacts with LinkedIn: " + withLinkedIn);
+        System.out.println("==========================\n");
+    }
+
+    private String formatContact(Contact c) {
+        return "Contact " + c.getContactId() + "\n" +
+                "----------------------------\n" +
+                "First Name     : " + safe(c.getFirstName()) + "\n" +
+                "Middle Name    : " + safe(c.getMiddleName()) + "\n" +
+                "Last Name      : " + safe(c.getLastName()) + "\n" +
+                "Nickname       : " + safe(c.getNickname()) + "\n" +
+                "\n" +
+                "Primary Phone  : " + safe(c.getPhonePrimary()) + "\n" +
+                "Secondary Phone: " + safe(c.getPhoneSecondary()) + "\n" +
+                "\n" +
+                "E-mail         : " + safe(c.getEmail()) + "\n" +
+                "LinkedIn       : " + safe(c.getLinkedinUrl()) + "\n" +
+                "\n" +
+                "Birth Date     : " + safe(c.getBirthDate()) + "\n" +
+                "Created At     : " + safe(c.getCreatedAt()) + "\n" +
+                "Updated At     : " + safe(c.getUpdatedAt()) + "\n";
+    }
+
+    private String safe(Object o) {
+        return (o == null) ? "" : o.toString();
+    }
+
 }

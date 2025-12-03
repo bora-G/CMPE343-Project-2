@@ -25,7 +25,7 @@ public class Main {
                 continue;
             }
 
-            // LOGIN
+
             User loggedIn = authService.loginWithPrompt();
             if (loggedIn == null) {
                 System.out.println("Login failed. Try again.");
@@ -34,10 +34,10 @@ public class Main {
 
             System.out.println("Welcome, " + loggedIn.getName() + " (" + loggedIn.getRole() + ")");
 
-            // ROL'E ÖZEL MENÜ
-            loggedIn.showUserMenu();   // Tester/Junior/Senior/Manager içinde farklı davranıyor
 
-            // showUserMenu bitti = kullanıcı logout dedi
+            loggedIn.showUserMenu();
+
+
         }
     }
 }
