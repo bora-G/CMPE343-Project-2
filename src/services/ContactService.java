@@ -527,8 +527,7 @@ public class ContactService {
         System.out.println("5- Year only (any day/month)");
 
         Integer mode = MenuInput.readMenuChoice(1, 5, "Select");
-        if (mode == null)
-            return results;
+        if (mode == null) return results;
 
         switch (mode) {
             case 1: {
