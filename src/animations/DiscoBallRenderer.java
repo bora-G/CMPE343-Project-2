@@ -1,9 +1,42 @@
 package animations;
+/**
+ * A renderer class responsible for drawing a rotating 3D disco ball
+ * onto a character-based frame buffer using simple projection and
+ * lighting calculations.
+ * <p>
+ * This renderer uses sphere parametrization and applies rotations around
+ * the X and Y axes to animate the disco ball. A z-buffer is used to ensure
+ * correct depth rendering, and lighting values determine which ASCII
+ * characters appear brighter or dimmer.
+ * </p>
+ */
 
 public class DiscoBallRenderer {
 
-    /**
-     * 3D disco topunu verilen frameBuffer + zBuffer üzerine çizer.
+   /**
+     * Renders a 3D rotating disco ball into the provided frame buffer and z-buffer.
+     * <p>
+     * This method:
+     * <ul>
+     *   <li>Iterates over spherical coordinates (i, j) to form a sphere</li>
+     *   <li>Applies rotations using angles A (X-axis) and B (Y-axis)</li>
+     *   <li>Projects 3D points into 2D screen space</li>
+     *   <li>Applies a simple brightness/light calculation</li>
+     *   <li>Updates the frame buffer with ASCII characters ('8', '&lt;', '&gt;', ';', '.') based on brightness</li>
+     *   <li>Uses the z-buffer to avoid drawing behind other points</li>
+     * </ul>
+     * </p>
+     *
+     * @param frameBuffer the character array representing the screen; will be modified by this method
+     * @param zBuffer     the z-depth array corresponding to the frame buffer
+     * @param width       the width of the frame in characters
+     * @param height      the height of the frame in characters
+     * @param A           rotation angle around the X-axis
+     * @param B           rotation angle around the Y-axis
+     * @param C           rotation angle around the Z-axis (currently unused but retained for extensibility)
+     * @param centerY     vertical center point where the disco ball will be drawn
+     * @param radius      radius of the disco ball in projection space
+     * @param aspectRatio scaling factor used to correct vertical stretching in character-based terminals
      */
     public static void renderBall(
             char[] frameBuffer,
@@ -69,3 +102,4 @@ public class DiscoBallRenderer {
         }
     }
 }
+
