@@ -49,6 +49,31 @@ public class ContactRepository {
         return null;
     }
 
+    public List<Contact> searchByFieldExact(String field, String value) {
+        String sql = "SELECT contact_id, first_name, middle_name, last_name, nickname, " +
+                "phone_primary, phone_secondary, email, linkedin_url, birth_date, created_at, updated_at " +
+                "FROM contacts WHERE " + field + " COLLATE utf8mb4_bin = ?";
+
+        List<Contact> results = new ArrayList<>();
+
+        try (Connection connection = requireConnection();
+             PreparedStatement st = connection.prepareStatement(sql)) {
+
+            st.setString(1, value);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    results.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Exact search failed for field: " + field, e);
+        }
+
+        return results;
+    }
+
+
+
     public boolean insert(Contact contact) {
         String sql = "INSERT INTO contacts " +
                 "(first_name, middle_name, last_name, nickname, phone_primary, phone_secondary, email, linkedin_url, birth_date) "

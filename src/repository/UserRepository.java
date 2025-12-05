@@ -14,12 +14,12 @@ import java.util.List;
 public class UserRepository {
 
     private static final String BASE_SELECT =
-            "SELECT user_id, username, password_hash, name, surname, role, created_at FROM users";
+            "SELECT user_id, username, password_hash, name, surname, role, salary, created_at FROM users";
 
     public User findByUsername(String username) {
         try (Connection connection = requireConnection();
              PreparedStatement statement =
-                     connection.prepareStatement(BASE_SELECT + " WHERE username = ?")) {
+                     connection.prepareStatement(BASE_SELECT + " WHERE BINARY username = ?")) {
             statement.setString(1, username);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -30,6 +30,11 @@ public class UserRepository {
             throw new RuntimeException("Failed to load user with username " + username, e);
         }
         return null;
+    }
+
+
+    public boolean existsByUsername(String username) {
+        return findByUsername(username) != null;
     }
 
     public boolean updatePassword(int userId, String newPasswordHash) {
@@ -103,6 +108,15 @@ public class UserRepository {
         user.setSurname(resultSet.getString("surname"));
         user.setRole(resultSet.getString("role"));
         user.setCreated_at(resultSet.getDate("created_at"));
+
+        double salaryValue = resultSet.getDouble("salary");
+        if (resultSet.wasNull()) {
+            user.setSalary(null);        // User.salary tipi büyük ihtimalle Double
+        } else {
+            user.setSalary(salaryValue);
+        }
+
+        user.setCreated_at(resultSet.getDate("created_at"));
         return user;
     }
 
@@ -114,7 +128,7 @@ public class UserRepository {
         return connection;
     }
     public boolean update(User user) {
-        String sql = "UPDATE users SET username = ?, password_hash = ?, name = ?, surname = ?, role = ? WHERE user_id = ?";
+        String sql = "UPDATE users SET username = ?, password_hash = ?, name = ?, surname = ?, role = ?, salary = ? WHERE user_id = ?";
 
         try (Connection conn = requireConnection();
              PreparedStatement st = conn.prepareStatement(sql)) {
@@ -124,7 +138,14 @@ public class UserRepository {
             st.setString(3, user.getName());
             st.setString(4, user.getSurname());
             st.setString(5, user.getRole());
-            st.setInt(6, user.getUserId());
+
+            if (user.getSalary() != null) {
+                st.setDouble(6, user.getSalary());
+            } else {
+                st.setNull(6, java.sql.Types.DOUBLE);
+            }
+
+            st.setInt(7, user.getUserId());
 
             return st.executeUpdate() > 0;
 
