@@ -3,10 +3,44 @@ package input;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Utility class that handles validated date input from the user.
+ * <p>
+ * This class provides several static methods for reading:
+ * <ul>
+ *     <li>A complete date in {@code YYYY-MM-DD} format</li>
+ *     <li>Individual day, month, and year components</li>
+ * </ul>
+ * All inputs loop until a valid value is entered or the user types {@code Q}
+ * to cancel and return {@code null}.
+ * </p>
+ *
+ * <p>
+ * This class cannot be instantiated and is designed for static access only.
+ * It relies on {@link Input#scanner}, which should be a globally shared
+ * {@code Scanner} instance.
+ * </p>
+ */
 public class DateInput {
 
+     /** Private constructor to prevent instantiation. */
     private DateInput() {}
 
+    /**
+     * Reads a complete date string from the user in {@code YYYY-MM-DD} format.
+     * <p>
+     * Behaviour:
+     * <ul>
+     *     <li>Prompts the user with the given message</li>
+     *     <li>Allows exiting with {@code Q}</li>
+     *     <li>Rejects invalid date formats</li>
+     *     <li>Rejects dates that occur in the future</li>
+     * </ul>
+     * </p>
+     *
+     * @param prompt the text displayed before requesting input
+     * @return a valid {@link LocalDate}, or {@code null} if the user chooses to exit
+     */
     public static LocalDate readDate(String prompt) {
         while (true) {
             System.out.print(prompt + " (YYYY-MM-DD) or Q to go back: ");
@@ -31,6 +65,18 @@ public class DateInput {
         }
     }
 
+    /**
+     * Reads a valid day value (1–31) from the user.
+     * <p>
+     * Allows:
+     * <ul>
+     *     <li>Digit-only input</li>
+     *     <li>Typing {@code Q} to cancel</li>
+     * </ul>
+     * </p>
+     *
+     * @return an integer between 1 and 31, or {@code null} if cancelled
+     */
     public static Integer readDay() {
         while (true) {
             System.out.print("Enter day (1-31) or Q to go back: ");
@@ -50,6 +96,14 @@ public class DateInput {
         }
     }
 
+    /**
+     * Reads a valid month value (1–12) from the user.
+     * <p>
+     * Allows cancellation with {@code Q}.
+     * </p>
+     *
+     * @return an integer between 1 and 12, or {@code null} if cancelled
+     */
     public static Integer readMonth() {
         while (true) {
             System.out.print("Enter month (1-12) or Q to go back: ");
@@ -69,6 +123,19 @@ public class DateInput {
         }
     }
 
+     /**
+     * Reads a valid year from the user within the range 1900 through the current year.
+     * <p>
+     * Ensures:
+     * <ul>
+     *     <li>No future years</li>
+     *     <li>No years before 1900</li>
+     *     <li>Allows {@code Q} to cancel</li>
+     * </ul>
+     * </p>
+     *
+     * @return a valid year integer, or {@code null} if cancelled
+     */
     public static Integer readYear() {
         int currentYear = LocalDate.now().getYear();
         while (true) {
@@ -88,4 +155,5 @@ public class DateInput {
             }
         }
     }
+
 }
