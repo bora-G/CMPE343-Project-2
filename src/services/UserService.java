@@ -6,7 +6,6 @@ import repository.UserRepository;
 
 import services.AuthService;
 
-
 import Undo.UndoManager;
 import Undo.AddUserCommand;
 import Undo.UpdateUserCommand;
@@ -54,15 +53,41 @@ public class UserService {
         System.out.println("\n--- Add New User ---");
         System.out.print("Username: ");
         String username = Input.scanner.nextLine();
+        while (username.isBlank()) {
+            System.out.println("Username cannot be empty.");
+            System.out.println("Please enter a valid username: ");
+            username = Input.scanner.nextLine();
+        }
 
         System.out.print("Password: ");
         String password = Input.scanner.nextLine();
+        while (password.isBlank()) {
+            System.err.println("Password cannot be empty!");
+            System.err.println("Please enter a valid password: ");
+            password = Input.scanner.nextLine();
+        }
 
         System.out.print("Name: ");
         String name = Input.scanner.nextLine();
+        while (name.isBlank()) 
+        {
+
+            System.out.println("Name cannot be empty.");
+            System.out.println("Please enter a valid name: ");
+            name = Input.scanner.nextLine();
+
+        }
 
         System.out.print("Surname: ");
         String surname = Input.scanner.nextLine();
+        while (surname.isBlank()) 
+        {
+
+            System.out.println("Surname cannot be empty.");
+            System.out.println("Please enter a valid surname: ");
+            surname = Input.scanner.nextLine();
+
+        }
 
         System.out.print("Role (Tester, Junior, Senior, Manager): ");
         String role = Input.scanner.nextLine();
@@ -89,8 +114,10 @@ public class UserService {
             return false;
         }
     }
+
     private User copyUser(User u) {
-        if (u == null) return null;
+        if (u == null)
+            return null;
         User copy = new Manager();
         copy.setUserId(u.getUserId());
         copy.setUsername(u.getUsername());
@@ -102,6 +129,7 @@ public class UserService {
         copy.setCreated_at(u.getCreated_at());
         return copy;
     }
+
     public boolean updateUser(User actingUser) {
         if (!isManager(actingUser)) {
             System.out.println("Access Denied: Only Managers can update users.");
@@ -125,11 +153,13 @@ public class UserService {
 
         System.out.print("New Name (" + userToUpdate.getName() + "): ");
         String name = Input.scanner.nextLine();
-        if (!name.isEmpty()) userToUpdate.setName(name);
+        if (!name.isBlank())
+            userToUpdate.setName(name);
 
         System.out.print("New Surname (" + userToUpdate.getSurname() + "): ");
         String surname = Input.scanner.nextLine();
-        if (!surname.isEmpty()) userToUpdate.setSurname(surname);
+        if (!surname.isBlank())
+            userToUpdate.setSurname(surname);
 
         System.out.print("New Role (" + userToUpdate.getRole() + "): ");
         String role = Input.scanner.nextLine();
@@ -202,13 +232,19 @@ public class UserService {
     }
 
     private User instantiateRoleUser(String role) {
-        if (role == null) return null;
+        if (role == null)
+            return null;
         switch (role.toLowerCase()) {
-            case "tester": return new Tester();
-            case "junior": return new Junior();
-            case "senior": return new Senior();
-            case "manager": return new Manager();
-            default: return null;
+            case "tester":
+                return new Tester();
+            case "junior":
+                return new Junior();
+            case "senior":
+                return new Senior();
+            case "manager":
+                return new Manager();
+            default:
+                return null;
         }
     }
 
@@ -230,7 +266,8 @@ public class UserService {
 
         for (User u : users) {
             String role = u.getRole();
-            if (role == null) continue;
+            if (role == null)
+                continue;
 
             String r = role.toLowerCase().trim();
 
@@ -251,6 +288,7 @@ public class UserService {
         System.out.println("Manager: " + managers);
         System.out.println("=========================\n");
     }
+
     public void showSalaryReport(User actingUser) {
         if (!isManager(actingUser)) {
             System.out.println("Access Denied: Only Managers can see salary report.");
@@ -268,8 +306,7 @@ public class UserService {
                     u.getUsername(),
                     u.getRole(),
                     salary == null ? 0 : salary,
-                    salary == null ? 0 : salary / 12
-            );
+                    salary == null ? 0 : salary / 12);
         }
         System.out.println("=================================");
     }
@@ -300,21 +337,25 @@ public class UserService {
 
                 return value;
             } catch (NumberFormatException ex) {
-                System.out.println("Invalid number format. Please enter a valid numeric salary (examples: 2500 or 2500.50).");
+                System.out.println(
+                        "Invalid number format. Please enter a valid numeric salary (examples: 2500 or 2500.50).");
             }
         }
     }
 
     private boolean isValidRole(String role) {
-        if (role == null) return false;
+        if (role == null)
+            return false;
         String r = role.toLowerCase();
         return r.equals("tester") || r.equals("junior") || r.equals("senior") || r.equals("manager");
     }
 
     private String capitalize(String str) {
-        if (str == null || str.isEmpty()) return str;
+        if (str == null || str.isEmpty())
+            return str;
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
+
     public void undoLastUserOperation() {
         undoManager.undoLast();
     }
