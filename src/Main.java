@@ -5,6 +5,8 @@ import services.AuthService;
 
 import static menu.MenuUtils.*;
 
+import animations.DiscoPartyOnTheFloor;
+
 public class Main {
     public static void main(String[] args) {
 
@@ -31,7 +33,7 @@ public class Main {
             String choice = input.Input.scanner.nextLine().trim();
 
             if (choice.equals("0")) {
-                printCentered("Goodbye!", YELLOW);
+                DiscoPartyOnTheFloor.runGoodbyeSequence();
                 break;
             } else if (!choice.equals("1")) {
                 printCentered("Invalid choice.", RED);
