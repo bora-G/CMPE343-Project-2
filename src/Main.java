@@ -7,7 +7,7 @@ public class Main {
 
         AuthService authService = new AuthService();
 
-        MenuItems.runStartupSequence();
+       // MenuItems.runStartupSequence();
 
         while (true) {
             System.out.println("\n=== MAIN MENU ===");
