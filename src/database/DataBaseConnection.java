@@ -57,10 +57,11 @@ public class DataBaseConnection {
         try {
             return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (SQLException e) {
-            System.out.println("Veritabanına bağlanılamadı!");
+            System.out.println("Failed to connect to database!");
             e.printStackTrace();
             return null;
         }
     }
 }
+
 
