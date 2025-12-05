@@ -9,17 +9,45 @@ import java.util.Arrays;
 
 import static menu.MenuUtils.*;
 
+/**
+ * Handles the main animated startup sequence and loading screens for the project.
+ * <p>
+ * This class is responsible for orchestrating:
+ * <ul>
+ *     <li>The initial static disco scene</li>
+ *     <li>A loop containing: full disco animation → project intro → loading screen</li>
+ *     <li>A login or restart selection screen after loading</li>
+ * </ul>
+ * It acts as the entry point for the visual experience before the system's actual
+ * logic (such as the contact manager) begins.
+ * </p>
+ */
 public class MenuItems {
 
-    // Main.main() başında çağrılacak
+   /**
+     * Runs the full startup sequence shown when the program launches.
+     * <p>
+     * Sequence:
+     * <ol>
+     *     <li>Show static disco scene and wait for ENTER</li>
+     *     <li>Enter loop:
+     *         <ul>
+     *             <li>Run animated disco party (10 seconds)</li>
+     *             <li>Show group member intro animation</li>
+     *             <li>Show 3D disco ball loading screen</li>
+     *             <li>Ask user: Start system (S) or Restart animation (R)</li>
+     *         </ul>
+     *     </li>
+     *     <li>If user selects S, return to caller (likely Main → login flow)</li>
+     * </ol>
+     * </p>
+     */
     public static void runStartupSequence() {
 
-        // 1) SADECE BİR KEZ: durağan sahne + ENTER
         DiscoPartyOnTheFloor.showStaticScene();
         System.out.print("\nPress ENTER to start the party...");
         Input.scanner.nextLine();
 
-        // 2) DÖNGÜ: ANİMASYON + INTRO + LOADING + S/R
         while (true) {
 
             // Animasyon
@@ -46,7 +74,17 @@ public class MenuItems {
         }
     }
 
-    // Loading ekranı – 3D disco ball + char bazlı bar
+    /**
+     * Displays an animated loading screen that includes:
+     * <ul>
+     *     <li>A rotating 3D ASCII disco ball</li>
+     *     <li>A progress bar that fills step-by-step</li>
+     *     <li>Status text and percentage spinner</li>
+     * </ul>
+     * The animation lasts until the progress bar completes.
+     *
+     * @param statusText Additional text displayed under the main loading title
+     */
     public static void showLoadingWithDiscoBall(String statusText) {
         int width = DiscoPartyOnTheFloor.WIDTH;
         int height = DiscoPartyOnTheFloor.HEIGHT;
@@ -116,6 +154,16 @@ public class MenuItems {
         sleep(400);
     }
 
+     /**
+     * Shows a simple screen after the intro finishes, asking whether the user wants to:
+     * <ul>
+     *     <li>Start the system (login)</li>
+     *     <li>Restart the full animation sequence</li>
+     * </ul>
+     * The method loops until the user enters either S or R.
+     *
+     * @return 'S' for starting the system, or 'R' for restarting animations
+     */
     private static char showLoginOrRestartScreen() {
         while (true) {
             clear();
@@ -140,3 +188,4 @@ public class MenuItems {
         }
     }
 }
+
