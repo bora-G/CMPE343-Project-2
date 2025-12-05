@@ -286,44 +286,95 @@ public class ContactService {
 
         System.out.print("First Name (Required): ");
         String fName = Input.scanner.nextLine().trim();
-        if (fName.isEmpty()) {
+        while (fName.isBlank() || !fName.matches("^[a-zA-Z]+$")) {
             System.out.println("Error: First Name is required!");
-            return false;
+            System.out.println("Enter a valid First Name!");
+            System.out.println("First Name (Required): ");
+            fName = Input.scanner.nextLine().trim();
         }
         newContact.setFirstName(fName);
 
         System.out.print("Last Name (Required): ");
         String lName = Input.scanner.nextLine().trim();
-        if (lName.isEmpty()) {
+        while (lName.isBlank() || !lName.matches("^[a-zA-Z]+$")) {
             System.out.println("Error: Last Name is required!");
-            return false;
+            System.out.println("Enter a valid Last Name!");
+            System.out.println("Last Name (Required): ");
+            lName = Input.scanner.nextLine().trim();
+
         }
         newContact.setLastName(lName);
 
         String phone = askPhoneNumber(Input.scanner, "Primary Phone (10 digits): ");
-        if (phone == null)
-            return false; // Aborted
+        while (phone == null) {
+            System.out.println("Error: Primary phone number is required!");
+            phone = askPhoneNumber(Input.scanner, "Primary Phone (10 digits): ");
+        }
+
         newContact.setPhonePrimary(phone);
+
+        boolean isPhoneSec = false;
+
+        System.out.println("Do you want to enter a Second Phone Number? (Y/N)");
+        String answersecondphone = Input.scanner.nextLine().trim();
+
+        if (answersecondphone.equalsIgnoreCase("Y")) {
+
+            String phonesec = askPhoneNumber(Input.scanner, "Secondary Phone (10 digits, Optional): ");
+
+            while (phonesec == null) {
+                System.out.println("Enter a valid phone number!");
+                phonesec = askPhoneNumber(Input.scanner, "Secondary Phone (10 digits, Optional): ");
+            }
+
+            newContact.setPhoneSecondary(phonesec);
+            isPhoneSec = true;
+        } else if (answersecondphone.equalsIgnoreCase("N")) {
+            isPhoneSec = false;
+        } else {
+            System.out.println("Invalid choice! Please enter Y or N.");
+        }
 
         System.out.print("Middle Name (Optional): ");
         String middle = Input.scanner.nextLine().trim();
-        if (!middle.isEmpty())
-            newContact.setMiddleName(middle);
 
-        System.out.print("Nickname (Optional): ");
+        if (!middle.isBlank()) {
+            if (!middle.matches("^[a-zA-Z]+$")) {
+                System.out.println("Enter a valid Middle Name!");
+                System.out.println("Last Name (Optional): ");
+                lName = Input.scanner.nextLine().trim();
+            }
+        }
+        newContact.setMiddleName(middle);
+
+        System.out.print("Nickname (Required): ");
         String nick = Input.scanner.nextLine().trim();
-        if (!nick.isEmpty())
-            newContact.setNickname(nick);
+        while (nick.isBlank()) {
+            System.out.println("Error: Nickname is required!");
+            nick = Input.scanner.nextLine().trim();
+        }
+        newContact.setNickname(nick);
 
-        System.out.print("Email (Optional): ");
+        System.out.print("Email (Required): ");
         String email = Input.scanner.nextLine().trim();
-        if (!email.isEmpty())
-            newContact.setEmail(email);
+
+        while (!safeEmail(email)) {
+            System.out.println("Invalid email format. Must contain '@' and '.'");
+            System.out.print("Please enter a valid email (or leave empty): ");
+            email = Input.scanner.nextLine().trim();
+        }
+
+        newContact.setEmail(email);
 
         System.out.print("LinkedIn URL (Optional): ");
         String linked = Input.scanner.nextLine().trim();
-        if (!linked.isEmpty())
-            newContact.setLinkedinUrl(linked);
+
+        while (!safeLinkedIn(linked)) {
+            System.out.println("Link must be a LinkedIn link.");
+            System.out.print("Please enter a valid LinkedIn URL (or leave empty): ");
+            linked = Input.scanner.nextLine().trim();
+        }
+        newContact.setLinkedinUrl(linked);
 
         LocalDate bday = DateInput.readDate("Birth Date");
         if (bday != null) {
@@ -381,33 +432,93 @@ public class ContactService {
 
             Contact oldSnapshot = copyContact(contact);
 
-            System.out.println("Updating: " + contact.getFirstName() + " " + contact.getLastName());
+            System.out.println("Updating: " + safe(contact.getFirstName()) + " " + safe(contact.getLastName()));
             System.out.println("(Press Enter to keep current value)");
+            System.out.println();
 
-            System.out.print("First Name (" + contact.getFirstName() + "): ");
+            // 2- First Name
+            System.out.print("First Name (" + safe(contact.getFirstName()) + "): ");
             String f = Input.scanner.nextLine().trim();
-            if (!f.isEmpty())
+            if (!f.isBlank())
                 contact.setFirstName(f);
 
-            System.out.print("Last Name (" + contact.getLastName() + "): ");
+            // 3- Middle Name
+            System.out.print("Middle Name (" + safe(contact.getMiddleName()) + "): ");
+            String m = Input.scanner.nextLine().trim();
+            contact.setMiddleName(m);
+
+            // 4- Last Name
+            System.out.print("Last Name (" + safe(contact.getLastName()) + "): ");
             String l = Input.scanner.nextLine().trim();
-            if (!l.isEmpty())
+            if (!l.isBlank())
                 contact.setLastName(l);
 
-            System.out.print("Phone (" + contact.getPhonePrimary() + "): ");
-            String p = Input.scanner.nextLine().trim();
-            if (!p.isEmpty()) {
-                if (p.matches("^[0-9]{10}$")) {
-                    contact.setPhonePrimary(p);
+            // 5- Nickname
+            System.out.print("Nickname (" + safe(contact.getNickname()) + "): ");
+            String n = Input.scanner.nextLine().trim();
+            if (!n.isBlank())
+                contact.setNickname(n);
+
+            // 6- Primary Phone
+            System.out.print("Primary Phone (" + safe(contact.getPhonePrimary()) + "): ");
+            String p1 = Input.scanner.nextLine().trim();
+            if (!p1.isBlank()) {
+                if (p1.matches("^[0-9]{10}$")) {
+                    contact.setPhonePrimary(p1);
                 } else {
-                    System.out.println("Invalid format. Phone not updated.");
+                    System.out.println("Invalid format. Primary phone NOT updated. (Must be 10 digits)");
                 }
             }
 
-            System.out.print("Email (" + (contact.getEmail() == null ? "none" : contact.getEmail()) + "): ");
-            String e = Input.scanner.nextLine().trim();
-            if (!e.isEmpty())
-                contact.setEmail(e);
+            // 7- Secondary Phone
+            System.out.print("Secondary Phone (" + safe(contact.getPhoneSecondary()) + "): ");
+            String p2 = Input.scanner.nextLine().trim();
+            {
+                if (!p2.isBlank()) {
+                    if (p2.matches("^[0-9]{10}$")) {
+                        contact.setPhoneSecondary(p2);
+                    } else {
+                        System.out.println("Invalid format. Secondary phone NOT updated. (Must be 10 digits)");
+                    }
+                }
+            }
+
+            // 8- E-mail
+            System.out.print("E-mail (" + safe(contact.getEmail()) + "): ");
+            String newMail = Input.scanner.nextLine().trim();
+
+            while (!newMail.isEmpty() && !safeEmail(newMail)) {
+                System.out.println("Invalid email format. Must contain '@' and '.'");
+                System.out.print("Please enter a valid e-mail: ");
+                newMail = Input.scanner.nextLine().trim();
+            }
+
+            if (!newMail.isBlank()) {
+                contact.setEmail(newMail);
+            }
+
+            // 9- LinkedIn URL
+            System.out.print("LinkedIn URL (" + safe(contact.getLinkedinUrl()) + "): ");
+            String linked = Input.scanner.nextLine().trim();
+
+            while (!safeLinkedIn(linked)) {
+                System.out.println("Link must be a LinkedIn link.");
+                System.out.print("Please enter a valid LinkedIn URL (or leave empty to keep current): ");
+                linked = Input.scanner.nextLine().trim();
+            }
+
+            contact.setLinkedinUrl(linked);
+
+            // 10- Birth Date
+            System.out.println("Current Birth Date: " + safe(contact.getBirthDate()));
+            System.out.print("Do you want to update Birth Date? (Y/N): ");
+            String bdChoice = Input.scanner.nextLine().trim();
+            if (bdChoice.equalsIgnoreCase("y")) {
+                LocalDate bday = DateInput.readDate("New Birth Date");
+                if (bday != null) {
+                    contact.setBirthDate(java.sql.Date.valueOf(bday));
+                }
+            }
 
             boolean success = contactRepository.update(contact);
             if (success) {
@@ -527,7 +638,8 @@ public class ContactService {
         System.out.println("5- Year only (any day/month)");
 
         Integer mode = MenuInput.readMenuChoice(1, 5, "Select");
-        if (mode == null) return results;
+        if (mode == null)
+            return results;
 
         switch (mode) {
             case 1: {
@@ -633,6 +745,38 @@ public class ContactService {
 
     private String safe(Object o) {
         return (o == null) ? "" : o.toString();
+    }
+
+    private boolean safeLinkedIn(String linkedin) {
+        if (linkedin == null || linkedin.isBlank()) {
+            return true;
+        }
+
+        return linkedin.startsWith("https://www.linkedin.com/");
+    }
+
+    private boolean safeEmail(String email) {
+        if (email.isBlank())
+            return false;
+
+        if (!email.contains("@"))
+            return false;
+
+        if (!email.contains("."))
+            return false;
+
+        if (email.indexOf("@") != email.lastIndexOf("@"))
+            return false;
+
+        int at = email.indexOf("@");
+        String domain = email.substring(at + 1);
+        if (!domain.contains("."))
+            return false;
+
+        if (!email.matches("^[A-Za-z0-9._%+-@]+$"))
+            return false;
+
+        return true;
     }
 
 }

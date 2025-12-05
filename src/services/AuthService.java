@@ -152,7 +152,7 @@ public static String hashPassword(String passwordPlainText) {
     }
 
     private boolean isValidPassword(String password) {
-        if (password == null)
+        if (password.isBlank())
             return false;
 
         return password.matches("^[\\p{Graph}]{2,32}$");

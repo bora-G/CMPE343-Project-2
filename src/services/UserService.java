@@ -6,7 +6,6 @@ import repository.UserRepository;
 
 import services.AuthService;
 
-
 import Undo.UndoManager;
 import Undo.AddUserCommand;
 import Undo.UpdateUserCommand;
@@ -18,6 +17,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UndoManager undoManager;
+
+    private static final String NAME_REGEX = "^[a-zA-ZğüşöçıİĞÜŞÖÇ]+$";
+
+    private boolean isValidNameString(String value) {
+        return value != null && value.matches(NAME_REGEX);
+    }
 
     public UserService() {
         this.userRepository = new UserRepository();
@@ -45,52 +50,121 @@ public class UserService {
         return users;
     }
 
-    public boolean addUser(User actingUser) {
-        if (!isManager(actingUser)) {
+    public boolean addUser(User var1) {
+        if (!this.isManager(var1)) {
             System.out.println("Access Denied: Only Managers can add users.");
             return false;
-        }
-
-        System.out.println("\n--- Add New User ---");
-        System.out.print("Username: ");
-        String username = Input.scanner.nextLine();
-
-        System.out.print("Password: ");
-        String password = Input.scanner.nextLine();
-
-        System.out.print("Name: ");
-        String name = Input.scanner.nextLine();
-
-        System.out.print("Surname: ");
-        String surname = Input.scanner.nextLine();
-
-        System.out.print("Role (Tester, Junior, Senior, Manager): ");
-        String role = Input.scanner.nextLine();
-
-        User newUser = instantiateRoleUser(role);
-        if (newUser == null) {
-            System.out.println("Invalid role! User creation cancelled.");
-            return false;
-        }
-        Double salary = readSalaryOrNull("Salary (USD, 0 - 1,000,000, use . or , for decimals, leave empty to skip): ");
-
-        newUser.setUsername(username);
-        newUser.setPassword_hash(AuthService.hashPassword(password));
-        newUser.setName(name);
-        newUser.setSurname(surname);
-        newUser.setSalary(salary);
-
-        if (userRepository.insert(newUser)) {
-            System.out.println("User added successfully.");
-            undoManager.push(new AddUserCommand(newUser.getUserId(), userRepository));
-            return true;
         } else {
-            System.out.println("Failed to add user.");
-            return false;
+            System.out.println("\n--- Add New User ---");
+
+            // USERNAME (Q ile çık)
+            String var2;
+            while (true) {
+                System.out.print("Username (or Q to cancel): ");
+                var2 = Input.scanner.nextLine().trim();
+                if (var2.equalsIgnoreCase("q")) {
+                    System.out.println("User creation cancelled.");
+                    return false;
+                }
+                if (var2.isEmpty()) {
+                    System.out.println("Username cannot be empty.");
+                } else {
+                    break;
+                }
+            }
+
+            // PASSWORD (Q ile çık)
+            String var3;
+            while (true) {
+                System.out.print("Password (or Q to cancel): ");
+                var3 = Input.scanner.nextLine().trim();
+                if (var3.equalsIgnoreCase("q")) {
+                    System.out.println("User creation cancelled.");
+                    return false;
+                }
+                if (var3.isEmpty()) {
+                    System.out.println("Password cannot be empty.");
+                } else {
+                    break;
+                }
+            }
+
+            // NAME (sadece harf, TR karakter serbest, Q ile çık)
+            String var4;
+            while (true) {
+                System.out.print("Name (letters only, Turkish allowed, or Q to cancel): ");
+                var4 = Input.scanner.nextLine().trim();
+                if (var4.equalsIgnoreCase("q")) {
+                    System.out.println("User creation cancelled.");
+                    return false;
+                }
+                if (!this.isValidNameString(var4)) {
+                    System.out.println("Invalid name! Only letters are allowed (Turkish characters are ok).");
+                } else {
+                    break;
+                }
+            }
+
+            // SURNAME (sadece harf, TR karakter serbest, Q ile çık)
+            String var5;
+            while (true) {
+                System.out.print("Surname (letters only, Turkish allowed, or Q to cancel): ");
+                var5 = Input.scanner.nextLine().trim();
+                if (var5.equalsIgnoreCase("q")) {
+                    System.out.println("User creation cancelled.");
+                    return false;
+                }
+                if (!this.isValidNameString(var5)) {
+                    System.out.println("Invalid surname! Only letters are allowed (Turkish characters are ok).");
+                } else {
+                    break;
+                }
+            }
+
+            // ROLE (zorunlu, sadece tester/junior/senior/manager, Q ile çık)
+            String var6;
+            User var7;
+            while (true) {
+                System.out.print("Role (Tester, Junior, Senior, Manager, or Q to cancel): ");
+                var6 = Input.scanner.nextLine().trim();
+                if (var6.equalsIgnoreCase("q")) {
+                    System.out.println("User creation cancelled.");
+                    return false;
+                }
+                var7 = this.instantiateRoleUser(var6);
+                if (var7 == null) {
+                    System.out.println("Invalid role! Please enter one of: Tester, Junior, Senior, Manager.");
+                } else {
+                    // Rol adını düzgün formatta set edelim
+                    var7.setRole(this.capitalize(var6));
+                    break;
+                }
+            }
+
+            // SALARY (0–1_000_000, sadece sayı, boş veya Q = girme)
+            Double var8 = this.readSalaryOrNull(
+                    "Salary (USD, 0 - 1,000,000, use . or , for decimals, leave empty or Q to skip): ");
+
+            var7.setUsername(var2);
+            var7.setPassword_hash(AuthService.hashPassword(var3));
+            var7.setName(var4);
+            var7.setSurname(var5);
+            var7.setSalary(var8);
+
+            if (this.userRepository.insert(var7)) {
+                System.out.println("User added successfully.");
+                this.undoManager.push(new AddUserCommand(var7.getUserId(), this.userRepository));
+                return true;
+            } else {
+                System.out.println("Failed to add user.");
+                return false;
+            }
         }
     }
+
     private User copyUser(User u) {
-        if (u == null) return null;
+        if (u == null)
+            return null;
         User copy = new Manager();
         copy.setUserId(u.getUserId());
         copy.setUsername(u.getUsername());
@@ -102,59 +176,103 @@ public class UserService {
         copy.setCreated_at(u.getCreated_at());
         return copy;
     }
-    public boolean updateUser(User actingUser) {
-        if (!isManager(actingUser)) {
+
+    public boolean updateUser(User var1) {
+        if (!this.isManager(var1)) {
             System.out.println("Access Denied: Only Managers can update users.");
             return false;
-        }
-
-        System.out.println("\n--- Update User ---");
-        System.out.print("Enter username of the user to update: ");
-        String targetUsername = Input.scanner.nextLine();
-
-        User userToUpdate = userRepository.findByUsername(targetUsername);
-        if (userToUpdate == null) {
-            System.out.println("User not found.");
-            return false;
-        }
-
-        User oldSnapshot = copyUser(userToUpdate);
-
-        System.out.println("Updating user: " + userToUpdate.getUsername());
-        System.out.println("Press Enter to skip a field.");
-
-        System.out.print("New Name (" + userToUpdate.getName() + "): ");
-        String name = Input.scanner.nextLine();
-        if (!name.isEmpty()) userToUpdate.setName(name);
-
-        System.out.print("New Surname (" + userToUpdate.getSurname() + "): ");
-        String surname = Input.scanner.nextLine();
-        if (!surname.isEmpty()) userToUpdate.setSurname(surname);
-
-        System.out.print("New Role (" + userToUpdate.getRole() + "): ");
-        String role = Input.scanner.nextLine();
-        if (!role.isEmpty()) {
-            if (isValidRole(role)) {
-                userToUpdate.setRole(capitalize(role));
-            } else {
-                System.out.println("Invalid role. Role not updated.");
-            }
-        }
-        System.out.print("New Salary (" + userToUpdate.getSalary() + ") - leave empty to keep current: ");
-        Double newSalary = readSalaryOrNull("");
-        if (newSalary != null) {
-            userToUpdate.setSalary(newSalary);
-        }
-
-        if (userRepository.update(userToUpdate)) {
-            System.out.println("User updated successfully.");
-
-            undoManager.push(new UpdateUserCommand(oldSnapshot, userRepository));
-
-            return true;
         } else {
-            System.out.println("Failed to update user.");
-            return false;
+            System.out.println("\n--- Update User ---");
+            System.out.print("Enter username of the user to update (or Q to cancel): ");
+            String var2 = Input.scanner.nextLine().trim();
+            if (var2.equalsIgnoreCase("q")) {
+                System.out.println("Update cancelled.");
+                return false;
+            }
+
+            User var3 = this.userRepository.findByUsername(var2);
+            if (var3 == null) {
+                System.out.println("User not found.");
+                return false;
+            } else {
+                User var4 = this.copyUser(var3);
+                System.out.println("Updating user: " + var3.getUsername());
+                System.out.println("Press Enter to skip a field. Type Q to cancel update.");
+
+                // NAME (opsiyonel, ama girilirse valid olmalı; Q = cancel)
+                while (true) {
+                    System.out.print("New Name (" + var3.getName() + "): ");
+                    String var5 = Input.scanner.nextLine().trim();
+                    if (var5.equalsIgnoreCase("q")) {
+                        System.out.println("Update cancelled.");
+                        return false;
+                    }
+                    if (var5.isEmpty()) {
+                        break; // değişiklik yok
+                    }
+                    if (!this.isValidNameString(var5)) {
+                        System.out.println("Invalid name! Only letters are allowed (Turkish characters are ok).");
+                    } else {
+                        var3.setName(var5);
+                        break;
+                    }
+                }
+
+                // SURNAME (opsiyonel, ama girilirse valid; Q = cancel)
+                while (true) {
+                    System.out.print("New Surname (" + var3.getSurname() + "): ");
+                    String var6 = Input.scanner.nextLine().trim();
+                    if (var6.equalsIgnoreCase("q")) {
+                        System.out.println("Update cancelled.");
+                        return false;
+                    }
+                    if (var6.isEmpty()) {
+                        break; // değişiklik yok
+                    }
+                    if (!this.isValidNameString(var6)) {
+                        System.out.println("Invalid surname! Only letters are allowed (Turkish characters are ok).");
+                    } else {
+                        var3.setSurname(var6);
+                        break;
+                    }
+                }
+
+                // ROLE (opsiyonel ama girilirse valid rol olmalı; Q = cancel)
+                while (true) {
+                    System.out.print("New Role (" + var3.getRole() + "): ");
+                    String var7 = Input.scanner.nextLine().trim();
+                    if (var7.equalsIgnoreCase("q")) {
+                        System.out.println("Update cancelled.");
+                        return false;
+                    }
+                    if (var7.isEmpty()) {
+                        break; // değişiklik yok
+                    }
+                    if (this.isValidRole(var7)) {
+                        var3.setRole(this.capitalize(var7));
+                        break;
+                    } else {
+                        System.out.println("Invalid role. Valid roles: Tester, Junior, Senior, Manager.");
+                    }
+                }
+
+                // SALARY (opsiyonel, boş veya Q = mevcut kalsın)
+                Double var8 = this.readSalaryOrNull(
+                        "New Salary (" + var3.getSalary()
+                                + ") - leave empty or Q to keep current: ");
+                if (var8 != null) {
+                    var3.setSalary(var8);
+                }
+
+                if (this.userRepository.update(var3)) {
+                    System.out.println("User updated successfully.");
+                    this.undoManager.push(new UpdateUserCommand(var4, this.userRepository));
+                    return true;
+                } else {
+                    System.out.println("Failed to update user.");
+                    return false;
+                }
+            }
         }
     }
 
@@ -202,13 +320,19 @@ public class UserService {
     }
 
     private User instantiateRoleUser(String role) {
-        if (role == null) return null;
+        if (role == null)
+            return null;
         switch (role.toLowerCase()) {
-            case "tester": return new Tester();
-            case "junior": return new Junior();
-            case "senior": return new Senior();
-            case "manager": return new Manager();
-            default: return null;
+            case "tester":
+                return new Tester();
+            case "junior":
+                return new Junior();
+            case "senior":
+                return new Senior();
+            case "manager":
+                return new Manager();
+            default:
+                return null;
         }
     }
 
@@ -230,7 +354,8 @@ public class UserService {
 
         for (User u : users) {
             String role = u.getRole();
-            if (role == null) continue;
+            if (role == null)
+                continue;
 
             String r = role.toLowerCase().trim();
 
@@ -251,6 +376,7 @@ public class UserService {
         System.out.println("Manager: " + managers);
         System.out.println("=========================\n");
     }
+
     public void showSalaryReport(User actingUser) {
         if (!isManager(actingUser)) {
             System.out.println("Access Denied: Only Managers can see salary report.");
@@ -268,53 +394,56 @@ public class UserService {
                     u.getUsername(),
                     u.getRole(),
                     salary == null ? 0 : salary,
-                    salary == null ? 0 : salary / 12
-            );
+                    salary == null ? 0 : salary / 12);
         }
         System.out.println("=================================");
     }
 
-    private Double readSalaryOrNull(String prompt) {
+    private Double readSalaryOrNull(String var1) {
         while (true) {
-            System.out.print(prompt);
-            String input = Input.scanner.nextLine().trim();
+            System.out.print(var1);
+            String var2 = Input.scanner.nextLine().trim();
 
-            if (input.isEmpty()) {
+            if (var2.equalsIgnoreCase("q")) {
+                System.out.println("Salary input skipped.");
                 return null;
             }
 
-            input = input.replace(',', '.');
+            if (var2.isEmpty()) {
+                return null;
+            }
+
+            var2 = var2.replace(',', '.');
 
             try {
-                double value = Double.parseDouble(input);
-
-                if (value < 0) {
+                double var3 = Double.parseDouble(var2);
+                if (var3 < 0.0) {
                     System.out.println("Salary cannot be negative. Please enter 0 or a positive value.");
-                    continue;
-                }
-
-                if (value > 1_000_000) {
+                } else if (var3 > 1_000_000.0) {
                     System.out.println("Salary is too high. Please enter a value up to 1,000,000.");
-                    continue;
+                } else {
+                    return var3;
                 }
-
-                return value;
-            } catch (NumberFormatException ex) {
-                System.out.println("Invalid number format. Please enter a valid numeric salary (examples: 2500 or 2500.50).");
+            } catch (NumberFormatException var5) {
+                System.out.println(
+                        "Invalid number format. Please enter a valid numeric salary (examples: 2500 or 2500.50).");
             }
         }
     }
 
     private boolean isValidRole(String role) {
-        if (role == null) return false;
+        if (role == null)
+            return false;
         String r = role.toLowerCase();
         return r.equals("tester") || r.equals("junior") || r.equals("senior") || r.equals("manager");
     }
 
     private String capitalize(String str) {
-        if (str == null || str.isEmpty()) return str;
+        if (str == null || str.isEmpty())
+            return str;
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
+
     public void undoLastUserOperation() {
         undoManager.undoLast();
     }
