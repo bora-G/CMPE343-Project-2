@@ -1,14 +1,38 @@
 package animations;
 
 import java.util.Arrays;
-
+/**
+ * Renders an ASCII-based disco party scene in the console.
+ * <p>
+ * This class is responsible for:
+ * <ul>
+ *     <li>Drawing a static scene with a disco ball and dancers</li>
+ *     <li>Running a timed animation where the disco ball rotates</li>
+ *     <li>Animating floor tiles, light beams, and dancers in rhythm</li>
+ * </ul>
+ * The output is written directly to {@code System.out} using ANSI escape
+ * codes to clear and reposition the cursor.
+ * </p>
+ */
 public class DiscoPartyOnTheFloor {
 
+    /** Width of the ASCII frame in characters. */
     public static final int WIDTH = 80;
+    
+    /** Height of the ASCII frame in characters. */
     public static final int HEIGHT = 50;
+
+    /**
+     * Aspect ratio used to compensate for character cell height,
+     * so that the scene looks more proportional.
+     */
     public static final double ASPECT_RATIO = 0.5;
 
-    // 1. TİP: YAN DANSÇILAR
+    // ---------------------------------------------------------------------
+    // 1. TYPE: SIDE DANCERS
+    // ---------------------------------------------------------------------
+
+    /** Side dancer sprite pose 1 (arms out). */
     private static final String[] SIDE_DANCER_1 = {
             "    (o_o)    ",
             "    <| |>    ",
@@ -17,6 +41,7 @@ public class DiscoPartyOnTheFloor {
             "    |   |    "
     };
 
+    /** Side dancer sprite pose 2 (different arm position). */
     private static final String[] SIDE_DANCER_2 = {
             "    (o_o)    ",
             "    /| |\\    ",
@@ -25,7 +50,11 @@ public class DiscoPartyOnTheFloor {
             "    /   \\    "
     };
 
-    // 2. TİP: ARKA PLAN ÇİFTİ
+    // ---------------------------------------------------------------------
+    // 2. TYPE: BACKGROUND COUPLE
+    // ---------------------------------------------------------------------
+
+    /** Background dancing couple sprite pose 1. */
     private static final String[] COUPLE_POSE_1 = {
             "   ( ^_^)    ",
             "    /| |\\    ",
@@ -33,6 +62,7 @@ public class DiscoPartyOnTheFloor {
             "    /   \\    "
     };
 
+    /** Background dancing couple sprite pose 2. */
     private static final String[] COUPLE_POSE_2 = {
             "   ( -_-)    ",
             "    | |    ",
@@ -40,7 +70,11 @@ public class DiscoPartyOnTheFloor {
             "    /   \\    "
     };
 
-    // 3. TİP: ORTA DANSÇI
+    // ---------------------------------------------------------------------
+    // 3. TYPE: CENTER DANCER
+    // ---------------------------------------------------------------------
+
+    /** Center dancer sprite pose A. */
     private static final String[] CENTER_POSE_A = {
             "    (>.<)    ",
             "    /|  |\\__ ",
@@ -49,6 +83,7 @@ public class DiscoPartyOnTheFloor {
             "    /    \\   "
     };
 
+    /** Center dancer sprite pose B. */
     private static final String[] CENTER_POSE_B = {
             "    (>.<)    ",
             " __/|  |\\    ",
@@ -57,7 +92,16 @@ public class DiscoPartyOnTheFloor {
             "   /    \\    "
     };
 
-    // Test için direkt bu sınıfı çalıştırmak istersen:
+    /**
+     * Entry point for quickly testing this class.
+     * <p>
+     * First shows a single static frame, then waits for the user to
+     * press ENTER and starts the disco animation for a fixed duration.
+     * </p>
+     *
+     * @param args command-line arguments (not used)
+     * @throws Exception if reading from {@code System.in} fails
+     */
     public static void main(String[] args) throws Exception {
         showStaticScene();
         System.out.print("\nPress ENTER to start the party...");
@@ -65,7 +109,20 @@ public class DiscoPartyOnTheFloor {
         runDisco(10_000);
     }
 
-    // 1) DURAĞAN SAHNE (tek frame, animasyonsuz)
+    /**
+     * Renders a single, non-animated frame of the disco scene.
+     * <p>
+     * This method:
+     * <ul>
+     *     <li>Draws the floor tiles</li>
+     *     <li>Draws the chain/rope holding the disco ball</li>
+     *     <li>Draws static light beams</li>
+     *     <li>Renders a non-rotating disco ball</li>
+     *     <li>Places the dancers in their default poses</li>
+     * </ul>
+     * The frame is printed once to the console.
+     * </p>
+     */
     public static void showStaticScene() {
         int width = WIDTH;
         int height = HEIGHT;
@@ -77,7 +134,7 @@ public class DiscoPartyOnTheFloor {
         Arrays.fill(frameBuffer, ' ');
         Arrays.fill(zBuffer, 0);
 
-        // Zemin
+       
         int floorHeight = 16;
         int startFloorY = height - floorHeight;
 
@@ -93,14 +150,12 @@ public class DiscoPartyOnTheFloor {
             }
         }
 
-        // Askı
         int ballCenterX = width / 2;
         for (int y = 0; y < 12; y++) {
             int idx = ballCenterX + width * y;
             if (idx < bufferSize) frameBuffer[idx] = '|';
         }
 
-        // Işık hüzmeleri (sabit C ile)
         double C = 0.0;
         for (int y = 0; y < startFloorY + 5; y++) {
             for (int x = 0; x < width; x++) {
@@ -119,7 +174,6 @@ public class DiscoPartyOnTheFloor {
             }
         }
 
-        // 3D küre (tek frame)
         DiscoBallRenderer.renderBall(
                 frameBuffer,
                 zBuffer,
@@ -133,7 +187,6 @@ public class DiscoPartyOnTheFloor {
                 ASPECT_RATIO
         );
 
-        // Dansçılar (sabit poz)
         int tick = 0;
         int rhythmBack = (tick / 6) % 2;
         String[] poseCouple = (rhythmBack == 0) ? COUPLE_POSE_1 : COUPLE_POSE_2;
@@ -149,7 +202,6 @@ public class DiscoPartyOnTheFloor {
         String[] poseCenter = (rhythmCenter == 0) ? CENTER_POSE_A : CENTER_POSE_B;
         drawDancer(frameBuffer, width, height, poseCenter, 34, 43, false);
 
-        // Çıktı
         StringBuilder sb = new StringBuilder();
         sb.append("\u001b[2J");
         sb.append("\u001b[H");
@@ -159,8 +211,23 @@ public class DiscoPartyOnTheFloor {
         }
         System.out.print(sb.toString());
     }
-
-    // 2) SÜRELİ ANİMASYON
+ /**
+     * Runs the animated disco party for a given duration.
+     * <p>
+     * Inside the loop this method:
+     * <ul>
+     *     <li>Animates the disco floor tiles</li>
+     *     <li>Animates the rope and light beams</li>
+     *     <li>Rotates the disco ball by updating angles A, B, C</li>
+     *     <li>Changes the poses of dancers according to a rhythm tick</li>
+     *     <li>Reprints the entire frame on each iteration</li>
+     * </ul>
+     * The loop stops when the given duration (in milliseconds) has elapsed.
+     * </p>
+     *
+     * @param durationMillis duration of the animation in milliseconds
+     * @throws InterruptedException if {@link Thread#sleep(long)} is interrupted
+     */
     public static void runDisco(long durationMillis) throws InterruptedException {
         int width = WIDTH;
         int height = HEIGHT;
@@ -182,7 +249,6 @@ public class DiscoPartyOnTheFloor {
             Arrays.fill(frameBuffer, ' ');
             Arrays.fill(zBuffer, 0);
 
-            // Zemin
             int floorHeight = 16;
             int startFloorY = height - floorHeight;
             for (int y = startFloorY; y < height; y++) {
@@ -201,7 +267,6 @@ public class DiscoPartyOnTheFloor {
                 }
             }
 
-            // Askı
             int ballCenterX = width / 2;
             for (int y = 0; y < 12; y++) {
                 int idx = ballCenterX + width * y;
@@ -211,7 +276,6 @@ public class DiscoPartyOnTheFloor {
                 }
             }
 
-            // Hüzmeler
             for (int y = 0; y < startFloorY + 5; y++) {
                 for (int x = 0; x < width; x++) {
                     double xx = (x - width / 2.0) / (width / 2.0);
@@ -229,7 +293,6 @@ public class DiscoPartyOnTheFloor {
                 }
             }
 
-            // 3D küre
             DiscoBallRenderer.renderBall(
                     frameBuffer,
                     zBuffer,
@@ -243,7 +306,6 @@ public class DiscoPartyOnTheFloor {
                     aspectRatio
             );
 
-            // Dansçılar
             int rhythmBack = (tick / 6) % 2;
             String[] poseCouple = (rhythmBack == 0) ? COUPLE_POSE_1 : COUPLE_POSE_2;
             drawDancer(frameBuffer, width, height, poseCouple, 26, 35, true);
@@ -258,7 +320,6 @@ public class DiscoPartyOnTheFloor {
             String[] poseCenter = (rhythmCenter == 0) ? CENTER_POSE_A : CENTER_POSE_B;
             drawDancer(frameBuffer, width, height, poseCenter, 34, 43, false);
 
-            // Çıktı
             StringBuilder sb = new StringBuilder();
             sb.append("\u001b[H");
             for (int i = 0; i < bufferSize; i++) {
@@ -276,7 +337,23 @@ public class DiscoPartyOnTheFloor {
         }
     }
 
-    // Dansçı çizimi
+    /**
+     * Draws a dancer sprite onto the given frame buffer.
+     * <p>
+     * The sprite is defined as an array of strings, each string
+     * representing one row of the dancer. Non-space characters
+     * are copied into the frame buffer at the specified starting
+     * position.
+     * </p>
+     *
+     * @param buffer the character buffer representing the whole frame
+     * @param width  frame width in characters
+     * @param height frame height in characters
+     * @param sprite the sprite lines to draw
+     * @param startX leftmost x position where the sprite will be drawn
+     * @param startY top y position where the sprite will be drawn
+     * @param flip   if true, horizontally mirrors the sprite (left/right)
+     */
     private static void drawDancer(char[] buffer, int width, int height,
                                    String[] sprite, int startX, int startY, boolean flip) {
         for (int r = 0; r < sprite.length; r++) {
@@ -306,149 +383,5 @@ public class DiscoPartyOnTheFloor {
             }
         }
     }
-// ... Sınıfın geri kalanı aynı ...
-
-    // GÜNCELLENMİŞ: Goodbye Animasyonu
-    public static void runGoodbyeSequence() {
-        int width = WIDTH;
-        int height = HEIGHT;
-        int bufferSize = width * height;
-
-        double aspectRatio = ASPECT_RATIO;
-
-        // Topun son konumu
-        double A = 0, B = 0, C = 0; 
-        
-        // Dansçıların kaçış ofseti
-        int dancerOffset = 0;
-        int centerDancerY = 34; 
-
-        double[] zBuffer = new double[bufferSize];
-        char[] frameBuffer = new char[bufferSize];
-
-        // Animasyon döngüsü
-        for (int frame = 0; frame < 80; frame++) {
-            Arrays.fill(frameBuffer, ' ');
-            Arrays.fill(zBuffer, 0);
-
-            // 1. Zemin
-            int floorHeight = 16;
-            int startFloorY = height - floorHeight;
-            for (int y = startFloorY; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int idx = x + width * y;
-                    int tileX = x / 10;
-                    int tileY = (y - startFloorY) / 3;
-                    boolean isTile = (tileX + tileY) % 2 == 0;
-                    if (isTile) frameBuffer[idx] = '#';
-                    else frameBuffer[idx] = '.';
-                }
-            }
-
-            // 2. Askı
-            int ballCenterX = width / 2;
-            for (int y = 0; y < 12; y++) {
-                int idx = ballCenterX + width * y;
-                if (idx < bufferSize) frameBuffer[idx] = '|';
-            }
-
-            // 3. Işık Hüzmeleri (Başlangıçta var, sonra sönüyor)
-            if (frame < 20) {
-                for (int y = 0; y < startFloorY + 5; y++) {
-                    for (int x = 0; x < width; x++) {
-                        double xx = (x - width / 2.0) / (width / 2.0);
-                        double yy = (y - 15) / (height / 2.0) / aspectRatio;
-                        double dist = Math.sqrt(xx * xx + yy * yy);
-                        double angle = Math.atan2(yy, xx);
-                        double ray = Math.sin(angle * 5 + C);
-                        if (dist > 0.4 + (frame/40.0) && ray > 0.8) { 
-                            int idx = x + width * y;
-                            if (idx < bufferSize && frameBuffer[idx] == ' ') {
-                                frameBuffer[idx] = (ray > 0.95) ? '|' : ';';
-                            }
-                        }
-                    }
-                }
-                 A += 0.04 * (1 - frame/20.0); 
-                 B += 0.08 * (1 - frame/20.0);
-                 C -= 0.05 * (1 - frame/20.0);
-            }
-
-            // 4. 3D Küre
-            DiscoBallRenderer.renderBall(
-                    frameBuffer, zBuffer, width, height,
-                    A, B, C, 15, 30.0, aspectRatio
-            );
-
-            // 5. Dansçıları Hareket Ettir
-            if (frame > 20) {
-                dancerOffset += 2; 
-                centerDancerY += 1; 
-            }
-
-            // Dansçıları Çiz (Eğer sahne dışına çıkmadılarsa)
-            drawDancer(frameBuffer, width, height, COUPLE_POSE_2, 26 - dancerOffset, 35, true);
-            drawDancer(frameBuffer, width, height, COUPLE_POSE_2, 44 + dancerOffset, 35, false);
-
-            drawDancer(frameBuffer, width, height, SIDE_DANCER_2, 8 - (dancerOffset + 2), 39, false);
-            drawDancer(frameBuffer, width, height, SIDE_DANCER_2, 62 + (dancerOffset + 2), 39, false);
-
-            if (34 + centerDancerY < height + 10) { 
-                 drawDancer(frameBuffer, width, height, CENTER_POSE_B, 34, 43 + (frame - 20), false);
-            }
-
-            // 6. GÜNCELLENMİŞ GOODBYE YAZISI
-            if (frame > 50) {
-                // Daha büyük ve okunaklı "GOODBYE" ASCII Art
-                String[] byeText = {
-                    " _____                 _  _                  ",
-                    "|  __ \\               | || |                 ",
-                    "| |  \\/  ___    ___   | || |__   _   _   ___ ",
-                    "| | __  / _ \\  / _ \\  | || '_ \\ | | | | / _ \\",
-                    "| |_\\ \\| (_) || (_) | | || |_) || |_| ||  __/",
-                    " \\____/ \\___/  \\___/  |_||_.__/  \\__, | \\___|",
-                    "                                  __/ |      ",
-                    "                                 |___/       "
-                };
-                
-                // Yazıyı ekranın ortasına (topun üstüne gelecek şekilde) yerleştir
-                int textY = 18; 
-                for (int r = 0; r < byeText.length; r++) {
-                    String line = byeText[r];
-                    int textX = (width - line.length()) / 2; // Ortala
-                    for (int k = 0; k < line.length(); k++) {
-                         int idx = (textX + k) + width * (textY + r);
-                         if (idx >= 0 && idx < bufferSize) {
-                             // Yazıyı frameBuffer'a bas
-                             frameBuffer[idx] = line.charAt(k);
-                         }
-                    }
-                }
-            }
-
-            // Çıktıyı Bas
-            StringBuilder sb = new StringBuilder();
-            sb.append("\u001b[H"); // Cursor Home
-            for (int i = 0; i < bufferSize; i++) {
-                // GOODBYE yazısı belirdiğinde onu Sarı (Yellow) yapalım
-                if (frame > 50 && frameBuffer[i] != ' ' && frameBuffer[i] != '#' && frameBuffer[i] != '.' && frameBuffer[i] != '|') {
-                     sb.append("\u001B[33m").append(frameBuffer[i]).append("\u001B[0m");
-                } else {
-                     sb.append(frameBuffer[i]);
-                }
-                if (i % width == width - 1) sb.append('\n');
-            }
-            System.out.print(sb.toString());
-
-            try { Thread.sleep(60); } catch (InterruptedException e) {}
-        }
-        
-        // Son temizlik ve kapanış mesajı
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-        System.out.println("\n\n");
-        // Konsola son bir şık veda mesajı da ekleyebiliriz
-        System.out.println("        See you next time on the dance floor!       ");
-        System.out.println("\n\n");
-    }
 }
+
