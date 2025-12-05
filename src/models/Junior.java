@@ -3,12 +3,54 @@ package models;
 import input.Input;
 import services.ContactService;
 
+/**
+ * Represents a user with the "Junior Developer" role in the system.
+ * <p>
+ * According to the project specifications, the Junior Developer role has an intermediate
+ * level of access. They possess all permissions of a Tester (Read-only access), plus the
+ * ability to <b>update</b> existing contact records.
+ * </p>
+ * <p>
+ * <b>Permissions defined in Project Specs:</b>
+ * <ul>
+ * <li>List all contacts, Search (Single/Multi-field), and Sort results.</li>
+ * <li>Change own password and Logout.</li>
+ * <li><b>Update</b> existing contact information.</li>
+ * </ul>
+ * <b>Restrictions:</b> This role strictly cannot Add or Delete contacts.
+ * </p>
+ *
+ * @author [Group Members Names Here]
+ * @version 1.0
+ * @see models.User
+ * @see models.Tester
+ * @see models.Senior
+ */
 public class Junior extends User {
 
+    /**
+     * Constructs a new Junior user and sets the role identifier to "Junior".
+     */
     public Junior() {
         setRole("Junior");
     }
 
+    /**
+     * Displays the interactive menu specific to the Junior Developer role.
+     * <p>
+     * This menu provides options to:
+     * <ol>
+     * <li>List all contacts.</li>
+     * <li>Search contacts by a single field.</li>
+     * <li>Search contacts by multiple fields.</li>
+     * <li>Sort contacts.</li>
+     * <li>Update an existing contact (Unique permission start point).</li>
+     * <li>Change password.</li>
+     * <li>Undo the last operation (specifically updates).</li>
+     * <li>Logout.</li>
+     * </ol>
+     * </p>
+     */
     @Override
     public void showUserMenu() {
 

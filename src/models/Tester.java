@@ -2,49 +2,81 @@ package models;
 
 import input.Input;
 import services.ContactService;
-import menu.MenuItems;
-import static menu.MenuUtils.*;
 
+/**
+ * Represents a user with the "Tester" role in the system.
+ * <p>
+ * The Tester role has the most restricted level of access within the system's role hierarchy.
+ * It provides <b>read-only</b> access to the contact database.
+ * </p>
+ * <p>
+ * <b>Permissions defined in Project Specs:</b>
+ * <ul>
+ * <li><b>List:</b> View all contacts.</li>
+ * <li><b>Search:</b> Perform single-field and multi-field searches.</li>
+ * <li><b>Sort:</b> Sort contact lists by various fields.</li>
+ * <li><b>System:</b> Change their own password and Logout.</li>
+ * </ul>
+ * <b>Restrictions:</b> Testers <b>cannot</b> Add, Update, or Delete contacts.
+ * </p>
+ *
+ * @author [Group Members Names Here]
+ * @version 1.0
+ * @see models.User
+ * @see services.ContactService
+ */
 public class Tester extends User {
 
+    /**
+     * Service instance to handle contact-related operations.
+     */
     private final ContactService contactService;
 
+    /**
+     * Constructs a new Tester user.
+     * <p>
+     * Sets the role identifier to "Tester" and initializes the contact service.
+     * </p>
+     */
     public Tester() {
         setRole("Tester");
         this.contactService = new ContactService();
     }
 
+    /**
+     * Displays the interactive menu specific to the Tester role.
+     * <p>
+     * Provides a loop allowing the user to select read-only operations until they choose to logout.
+     * The menu options correspond exactly to the permissions outlined in the project requirements table.
+     * </p>
+     */
     @Override
     public void showUserMenu() {
         while (true) {
-            clear();
-            printMenuHeader("TESTER DASHBOARD");
-            printCentered("User: " + getName() + " " + getSurname(), CYAN);
-            System.out.println(); 
-
-            printOption("1", "List all contacts");
-            printOption("2", "Search by single field");
-            printOption("3", "Search by multiple fields");
-            printOption("4", "Sort contacts");
-            printOption("5", "Change password");
-            printOption("0", "Logout");
-            
-            printPrompt();
+            System.out.println();
+            System.out.println("=== TESTER MENU ===");
+            System.out.println("1) List all contacts");
+            System.out.println("2) Search by single field");
+            System.out.println("3) Search by multiple fields");
+            System.out.println("4) Sort contacts");
+            System.out.println("5) Change password");
+            System.out.println("0) Logout");
+            System.out.print("Your choice: ");
 
             String choice = Input.scanner.nextLine().trim();
 
             switch (choice) {
                 case "1":
-                    contactService.listAllContacts();
+                    listAllContacts();
                     break;
                 case "2":
-                    contactService.searchBySingleField();
+                    searchBySingleField();
                     break;
                 case "3":
-                    contactService.searchByMultipleFields();
+                    searchByMultipleFields();
                     break;
                 case "4":
-                    contactService.sortContacts();
+                    sortContacts();
                     break;
                 case "5":
                     changePassword();
@@ -53,18 +85,41 @@ public class Tester extends User {
                     logout();
                     return; 
                 default:
-                    System.out.println(RED + "Invalid choice, try again." + RESET);
-                    sleep(1000);
-            }
-            
-            if(!choice.equals("0")) {
-                System.out.println("\n" + YELLOW + "Press Enter to return to menu..." + RESET);
-                Input.scanner.nextLine();
+                    System.out.println("Invalid choice, try again.");
             }
         }
     }
-    private void listAllContacts() { contactService.listAllContacts(); }
-    private void searchBySingleField() { contactService.searchBySingleField(); }
-    private void searchByMultipleFields() { contactService.searchByMultipleFields(); }
-    private void sortContacts() { contactService.sortContacts(); }
+
+
+    /**
+     * Delegates the "List all contacts" operation to the ContactService.
+     */
+    private void listAllContacts() {
+      
+        contactService.listAllContacts(); 
+    }
+
+    /**
+     * Delegates the "Search by single field" operation to the ContactService.
+     */
+    private void searchBySingleField() {   
+
+        contactService.searchBySingleField();
+    }
+
+    /**
+     * Delegates the "Search by multiple fields" operation to the ContactService.
+     */
+    private void searchByMultipleFields() {
+
+        contactService.searchByMultipleFields();  
+    }
+
+    /**
+     * Delegates the "Sort contacts" operation to the ContactService.
+     */
+    private void sortContacts() {
+      
+        contactService.sortContacts();  
+    }
 }
