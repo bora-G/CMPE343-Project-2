@@ -17,10 +17,21 @@ public class AuthService {
 
     private final UserRepository userRepository;
 
+    /**
+     * Initializes the AuthService and sets up the UserRepository instance.
+     */
     public AuthService() {
         this.userRepository = new UserRepository();
     }
 
+    /**
+     * Prompts the user to enter their username and password via console input.
+     * After receiving the credentials, it forwards them to the {@link #login(String, String)}
+     * method for authentication.
+     *
+     * @return the authenticated User if the credentials are correct,
+     *         otherwise null.
+     */
     public User loginWithPrompt() {
 
         System.out.print("Please enter your username: ");
@@ -32,6 +43,19 @@ public class AuthService {
         return login(username, password);
     }
 
+    /**
+     * Attempts to authenticate a user using the provided username and plain text password.
+     * <p>
+     * The method hashes the given password, retrieves the stored user from the database,
+     * and compares the stored hashed password with the newly hashed input.
+     * If the user exists and the password matches, the method returns a role-specific
+     * User object; otherwise, it returns {@code null}.
+     *
+     * @param username the username of the user attempting to log in; must not be null
+     * @param passwordPlainText the plain text password entered by the user; must not be null
+     * @return a fully mapped, role-specific {@link User} if authentication is successful;
+     *         {@code null} if the username does not exist or the password is incorrect
+     */
     public User login(String username, String passwordPlainText) {
         if (username == null || passwordPlainText == null) {
             return null;
@@ -51,12 +75,34 @@ public class AuthService {
         return mapToRoleSpecificUser(persistedUser);
     }
 
+    /**
+     * Converts a persisted generic User object into its corresponding
+     * role-specific subclass (Tester, Junior, Senior, or Manager).
+     * <p>
+     * The method first creates a new instance of the correct role-based User
+     * using {@link #instantiateRoleUser(String)}, then copies all shared fields
+     * from the persisted user into this new role-specific instance.
+     *
+     * @param persistedUser the user object fetched from the database, containing all stored fields
+     * @return a new User instance whose type matches the user's role
+     */
     private User mapToRoleSpecificUser(User persistedUser) {
         User roleUser = instantiateRoleUser(persistedUser.getRole());
         copyUserState(persistedUser, roleUser);
         return roleUser;
     }
 
+    /**
+     * Creates and returns a new User subclass instance based on the given role.
+     * <p>
+     * If the role string contains keywords such as "tester", "junior", "senior",
+     * or "manager", the corresponding subclass is instantiated.
+     * If the role is null or unrecognized, the default returned instance is {@link Tester}.
+     *
+     * @param role the role string stored in the database for the user
+     * @return a newly created User instance matching the specified role,
+     *         or {@link Tester} if the role is null or unknown
+     */
     private User instantiateRoleUser(String role) {
         if (role == null) {
             return new Tester();
@@ -73,11 +119,22 @@ public class AuthService {
         } else if (r.contains("manager")) {
             return new Manager();
         } else {
-            // tanınmayan rol → default Tester
             return new Tester();
         }
     }
 
+    /**
+     * Copies all shared user attributes from the source User object
+     * into the target User object.
+     * <p>
+     * This method is used when converting a generic persisted User into a
+     * role-specific subclass instance, ensuring that all common fields
+     * (ID, username, password hash, name, surname, role, timestamps)
+     * remain consistent.
+     *
+     * @param source the original User object holding the current field values
+     * @param target the User object into which values will be copied
+     */
     private void copyUserState(User source, User target) {
         target.setUserId(source.getUserId());
         target.setUsername(source.getUsername());
@@ -89,6 +146,18 @@ public class AuthService {
         target.setUpdated_at(source.getUpdated_at());
     }
 
+    /**
+     * Hashes the provided plain text password using the SHA-256 algorithm.
+     * <p>
+     * The password is encoded in UTF-8, hashed with SHA-256, and returned
+     * as a lowercase hexadecimal string.
+     * If the hashing algorithm is not available (which should not happen
+     * in standard Java), an {@link IllegalStateException} is thrown.
+     *
+     * @param passwordPlainText the raw password entered by the user
+     * @return the SHA-256 hashed representation of the password as a hex string
+     * @throws IllegalStateException if the SHA-256 algorithm is not supported by the JVM
+     */
 public static String hashPassword(String passwordPlainText) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -103,6 +172,21 @@ public static String hashPassword(String passwordPlainText) {
         }
     }
 
+    /**
+     * Interactively prompts the user to change their password through console input.
+     * <p>
+     * The method asks for the current password, the new password, and its confirmation.
+     * It validates the new password format using {@link #isValidPassword(String)}, checks that
+     * both new password entries match, and then delegates the actual update to
+     * {@link #changePassword(User, String, String)}.
+     *
+     * <p>Informative messages are printed to the console depending on whether validation or
+     * password update succeeds or fails.
+     *
+     * @param user the currently logged-in user requesting a password change
+     * @return {@code true} if the password was successfully changed,
+     *         {@code false} otherwise
+     */
     public boolean changePasswordWithPrompt(User user) {
 
         System.out.print("Enter your current password: ");
@@ -135,6 +219,23 @@ public static String hashPassword(String passwordPlainText) {
         return success;
     }
 
+    /**
+     * Updates the password of the specified user by verifying the current password
+     * and replacing it with a new hashed password.
+     * <p>
+     * The method hashes the provided current password, compares it with the stored
+     * password hash, and if they match, hashes the new password and attempts to update
+     * it in the database using {@code userRepository.updatePassword()}.
+     *
+     * <p>If the update in the repository succeeds, the in-memory User object's password
+     * hash is also updated to remain consistent.
+     *
+     * @param user the user whose password will be updated
+     * @param currentPassword the user's current plain text password
+     * @param newPassword the new plain text password to be stored after hashing
+     * @return {@code true} if the password was successfully changed,
+     *         {@code false} if the current password is incorrect or the update fails
+     */
     public boolean changePassword(User user, String currentPassword, String newPassword) {
         String currentHash = hashPassword(currentPassword);
 
@@ -151,6 +252,21 @@ public static String hashPassword(String passwordPlainText) {
         return success;
     }
 
+    /**
+     * Validates whether the given password meets the application's password rules.
+     * <p>
+     * A valid password must:
+     * <ul>
+     *   <li>Contain only visible (non-whitespace) characters — based on {@code \p{Graph}}</li>
+     *   <li>Be between 2 and 32 characters long</li>
+     *   <li>Not be blank</li>
+     * </ul>
+     * The validation is performed using the regular expression {@code ^[\p{Graph}]{2,32}$}.
+     *
+     * @param password the plain text password to validate
+     * @return {@code true} if the password matches the required format,
+     *         {@code false} otherwise
+     */
     private boolean isValidPassword(String password) {
         if (password.isBlank())
             return false;

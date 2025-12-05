@@ -23,25 +23,63 @@ import java.time.LocalDate;
 
 public class ContactService {
 
+    /** Repository responsible for all contact-related database operations. */
     private final ContactRepository contactRepository;
+
+    /** Manages undoable operations for contact modifications. */
     private final UndoManager undoManager;
+
+    /** Regular expression used for validating name fields. */
     private static final String NAME_REGEX = "^[a-zA-ZÇĞİÖŞÜçğıöşü]+$";
 
+    /**
+     * Initializes the ContactService with a new ContactRepository and UndoManager.
+     * This service handles all high-level operations related to contacts,
+     * including CRUD and undo functionality.
+     */
     public ContactService() {
         this.contactRepository = new ContactRepository();
         this.undoManager = new UndoManager();
     }
 
+    /**
+     * Retrieves all contacts from the repository and prints them to the console.
+     *
+     * @return a list containing all contacts stored in the system
+     */
     public List<Contact> listAllContacts() {
         List<Contact> contacts = contactRepository.findAll();
         printResults(contacts);
         return contacts;
     }
 
+    /**
+     * Reverts the most recent undoable operation performed on contacts.
+     * This method delegates the undo logic to the {@link UndoManager}.
+     * If no operations are available to undo, nothing happens.
+     */
     public void undoLastOperation() {
         undoManager.undoLast();
     }
 
+    /**
+     * Allows the user to search for contacts based on a single selected field.
+     * Displays a menu of searchable attributes (e.g., name, phone, email, dates),
+     * requests user input, and performs the corresponding repository query.
+     *
+     * Supported fields include:
+     * - Contact ID
+     * - First / Middle / Last Name
+     * - Nickname
+     * - Primary & Secondary Phone Numbers
+     * - Email (partial or domain search)
+     * - LinkedIn presence
+     * - Birth, creation, and update dates
+     *
+     * The method prints the search results and returns them as a list.
+     *
+     * @return a list of contacts matching the selected search criteria.
+     */
     public List<Contact> searchBySingleField() {
         List<Contact> results = new ArrayList<>();
 
@@ -137,6 +175,25 @@ public class ContactService {
         return results;
     }
 
+    /**
+     * Allows the user to perform a multi-field search by adding multiple filters sequentially.
+     * The user may choose from several fields (name, phone, email, nickname) and input
+     * partial text values. Each filter is stored and combined to perform a multi-criteria
+     * database query.
+     *
+     * <p>The method works interactively:
+     * <ul>
+     *     <li>User selects one field at a time.</li>
+     *     <li>User enters a value that should be contained in the selected field.</li>
+     *     <li>Filters accumulate in a map until the user selects "0" to execute the search.</li>
+     * </ul>
+     *
+     * After collecting all criteria, the method delegates the query to
+     * {@link ContactRepository#searchByMultipleCriteria(Map)} and prints the results.
+     *
+     * @return a list of contacts matching all specified filters;
+     *         an empty list if no filters were selected or no matches were found.
+     */
     public List<Contact> searchByMultipleFields() {
         System.out.println("\n=== Multi-Field Search ===");
         System.out.println("Add filters one by one. Enter '0' to execute search.");
@@ -201,6 +258,28 @@ public class ContactService {
         return results;
     }
 
+    /**
+     * Allows the user to sort contacts based on a selected field and sort direction.
+     * The method displays a menu of sortable fields (e.g., names, phone numbers,
+     * dates), asks the user for the sorting criterion, and then requests whether the
+     * sort should be ascending or descending.
+     *
+     * <p>Sorting fields include:
+     * <ul>
+     *     <li>Contact ID</li>
+     *     <li>First / Middle / Last Name</li>
+     *     <li>Nickname</li>
+     *     <li>Primary & Secondary Phone Numbers</li>
+     *     <li>Email</li>
+     *     <li>LinkedIn URL</li>
+     *     <li>Birth / Creation / Update Dates</li>
+     * </ul>
+     *
+     * After determining the sort preferences, the method delegates to
+     * {@link ContactRepository#findAllSorted(String, String)} and prints the results.
+     *
+     * @return a sorted list of contacts, or an empty list if an invalid selection was made.
+     */
     public List<Contact> sortContacts() {
         System.out.println("\n=== Sort Contacts ===");
         System.out.println("Which field do you want to sort by?");
@@ -270,6 +349,36 @@ public class ContactService {
         return results;
     }
 
+    /**
+     * Interactively creates and saves a new contact using console input.
+     * <p>
+     * Only users whose role contains {@code "Senior"} or {@code "Manager"} are
+     * allowed to add contacts. If the acting user does not have sufficient
+     * privileges, the method prints an access denied message and returns {@code false}.
+     * </p>
+     *
+     * <p>The method guides the user through entering and validating:</p>
+     * <ul>
+     *     <li>First and last name (required, letters only, cancellable with 'Q')</li>
+     *     <li>Primary phone number (required, 10 digits, unique)</li>
+     *     <li>Secondary phone number (optional, 10 digits, unique, skippable)</li>
+     *     <li>Middle name (optional, letters only)</li>
+     *     <li>Nickname (required, unique)</li>
+     *     <li>Email (required, validated format, unique)</li>
+     *     <li>LinkedIn URL (optional, must be a valid LinkedIn link if provided, unique)</li>
+     *     <li>Birth date (optional)</li>
+     * </ul>
+     *
+     * <p>The user can cancel the entire operation at various steps by entering 'Q',
+     * in which case no contact is created and {@code false} is returned.</p>
+     *
+     * <p>On successful insertion into the repository, an {@link AddContactCommand}
+     * is pushed to the {@link UndoManager} to allow undoing this operation later.</p>
+     *
+     * @param actingUser the user attempting to add a new contact; used for role-based access control
+     * @return {@code true} if the contact is successfully added; {@code false} if
+     *         access is denied, the operation is canceled by the user, or insertion fails
+     */
     public boolean addContact(User actingUser) {
         String role = actingUser.getRole();
         if (!role.contains("Senior") && !role.contains("Manager")) {
@@ -280,7 +389,6 @@ public class ContactService {
         System.out.println("\n=== Add New Contact ===");
         Contact newContact = new Contact();
 
-        // FIRST NAME (REQUIRED, LETTERS ONLY, Q TO CANCEL)
         String fName;
         while (true) {
             System.out.print("First Name (Required, letters only, or Q to cancel): ");
@@ -447,6 +555,18 @@ public class ContactService {
         return success;
     }
 
+    /**
+     * Creates and returns a deep copy of the given {@link Contact} object.
+     * <p>
+     * This method manually copies all primitive and immutable fields from the original
+     * contact into a new {@code Contact} instance. It is primarily used for undo/redo
+     * operations to ensure that modifications do not affect the stored reference of
+     * the original contact.
+     * </p>
+     *
+     * @param c the contact to copy; must not be null
+     * @return a new {@code Contact} instance with all fields duplicated from the original
+     */
     private Contact copyContact(Contact c) {
         Contact copy = new Contact();
         copy.setContactId(c.getContactId());
@@ -464,6 +584,38 @@ public class ContactService {
         return copy;
     }
 
+    /**
+     * Interactively updates an existing contact selected by its ID.
+     * <p>
+     * The method first checks the role of the acting user and denies access if the
+     * role contains {@code "Tester"}, as testers are not allowed to modify contacts.
+     * </p>
+     *
+     * <p>Workflow:</p>
+     * <ol>
+     *     <li>Prompts for a contact ID (or 'Q' to cancel).</li>
+     *     <li>Loads the corresponding contact from the repository.</li>
+     *     <li>Takes a snapshot of the original contact using {@link #copyContact(Contact)}
+     *         for potential undo operations.</li>
+     *     <li>For each editable field (names, nickname, phones, email, LinkedIn URL, birth date),
+     *         the user may:
+     *         <ul>
+     *             <li>Press Enter to keep the current value,</li>
+     *             <li>Enter a new valid value, or</li>
+     *             <li>Type 'Q' to cancel the entire update.</li>
+     *         </ul>
+     *     </li>
+     *     <li>Performs validation and uniqueness checks for fields like nickname,
+     *         phone numbers, email, and LinkedIn URL.</li>
+     *     <li>If the update succeeds, an {@link UpdateContactCommand} is pushed to
+     *         the {@link UndoManager} for undo support.</li>
+     * </ol>
+     *
+     * @param actingUser the user attempting to update the contact; used for role checks
+     * @return {@code true} if the contact is successfully updated;
+     *         {@code false} if access is denied, input is invalid, update is cancelled,
+     *         or the repository update fails
+     */
     public boolean updateContact(User actingUser) {
         if (actingUser.getRole().contains("Tester")) {
             System.out.println("!!! ACCESS DENIED: Testers cannot update contacts.");
@@ -678,6 +830,28 @@ public class ContactService {
         }
     }
 
+    /**
+     * Deletes an existing contact selected by its ID.
+     * <p>
+     * Only users whose role contains {@code "Senior"} or {@code "Manager"} are
+     * allowed to delete contacts. If the acting user does not have sufficient
+     * privileges, the method prints an access denied message and returns {@code false}.
+     * </p>
+     *
+     * <p>Workflow:</p>
+     * <ol>
+     *     <li>Prompts for a contact ID (or 'Q' to cancel).</li>
+     *     <li>Loads the contact from the repository; if not found, aborts.</li>
+     *     <li>Shows a warning and asks the user to type {@code "YES"} to confirm.</li>
+     *     <li>If confirmed, deletes the contact and pushes a {@link DeleteContactCommand}
+     *         to the {@link UndoManager} for undo support.</li>
+     * </ol>
+     *
+     * @param actingUser the user attempting to delete the contact; used for role-based access control
+     * @return {@code true} if the contact is successfully deleted; {@code false} if
+     *         access is denied, the contact is not found, the operation is cancelled,
+     *         or the delete operation fails
+     */
     public boolean deleteContact(User actingUser) {
         String role = actingUser.getRole();
         if (!role.contains("Senior") && !role.contains("Manager")) {
@@ -719,6 +893,16 @@ public class ContactService {
         return false;
     }
 
+    /**
+     * Prints a formatted list of contacts to the console.
+     * <p>
+     * Each contact is rendered using {@link #formatContact(Contact)} and separated
+     * by a visual divider. If the list is {@code null} or empty, a
+     * {@code "No records found."} message is displayed instead.
+     * </p>
+     *
+     * @param contacts the list of contacts to print; may be {@code null} or empty
+     */
     private void printResults(List<Contact> contacts) {
         if (contacts == null || contacts.isEmpty()) {
             System.out.println("No records found.");
@@ -736,6 +920,19 @@ public class ContactService {
         System.out.println("================================================================================");
     }
 
+    /**
+     * Searches contacts by a single string-based field using a partial match.
+     * <p>
+     * The user is prompted to enter a value (or part of it) for the given display
+     * name, which is then used to search the specified database field via
+     * {@link ContactRepository#searchByField(String, String)}.
+     * </p>
+     *
+     * @param dbField     the name of the database column to search in (e.g. {@code "first_name"})
+     * @param displayName the human-readable name of the field shown in the prompt
+     * @return a list of contacts whose given field contains the entered value;
+     *         an empty list if no value is entered
+     */
     private List<Contact> searchByStringField(String dbField, String displayName) {
         System.out.print("Enter " + displayName + " (or part of it): ");
         String val = Input.scanner.nextLine().trim();
@@ -743,6 +940,24 @@ public class ContactService {
         return contactRepository.searchByField(dbField, val);
     }
 
+    /**
+     * Prompts the user for a 10-digit phone number and validates the input.
+     * <p>
+     * The user is repeatedly asked to enter a phone number until a valid value
+     * is provided or the operation is cancelled. A valid phone number:
+     * </p>
+     * <ul>
+     *     <li>Contains exactly 10 digits</li>
+     *     <li>Includes digits only (no spaces, symbols, or letters)</li>
+     * </ul>
+     *
+     * <p>Entering {@code 'Q'} (in any case) cancels the input and causes this method
+     * to return {@code null}.</p>
+     *
+     * @param scanner the {@link Scanner} used to read input from the console
+     * @param message the prompt message displayed to the user
+     * @return a valid 10-digit phone number as a {@link String}, or {@code null} if the user cancels with 'Q'
+     */
     public String askPhoneNumber(Scanner scanner, String message) {
         while (true) {
             System.out.print(message);
@@ -759,6 +974,29 @@ public class ContactService {
         }
     }
 
+    /**
+     * Searches contacts by a date-based field (such as birth date or creation date)
+     * using different matching modes.
+     * <p>
+     * The user can choose how specific the date filter should be:
+     * </p>
+     * <ul>
+     *     <li>Exact date (full YYYY-MM-DD)</li>
+     *     <li>Day + Month (any year)</li>
+     *     <li>Day only (any month/year)</li>
+     *     <li>Month only (any day/year)</li>
+     *     <li>Year only (any day/month)</li>
+     * </ul>
+     *
+     * <p>Depending on the selected mode, the method constructs a pattern string
+     * (using underscores for wildcard parts) and delegates the search to
+     * {@link ContactRepository#searchByField(String, String)}.</p>
+     *
+     * @param fieldName the name of the date field in the database (e.g. {@code "birth_date"})
+     * @param label     a human-readable label used in prompts (e.g. {@code "Birth Date"})
+     * @return a list of contacts whose specified date field matches the chosen criteria;
+     *         an empty list if the user cancels or no results are found
+     */
     private List<Contact> searchByDateField(String fieldName, String label) {
         List<Contact> results = new ArrayList<>();
 
@@ -819,6 +1057,25 @@ public class ContactService {
         return results;
     }
 
+    /**
+     * Calculates and displays various statistics about all contacts in the system.
+     * <p>
+     * The method loads all contacts from the repository and prints:
+     * </p>
+     * <ul>
+     *     <li>Total number of contacts</li>
+     *     <li>Number of contacts with a LinkedIn URL</li>
+     *     <li>Average age of contacts (for those with a birthdate)</li>
+     *     <li>Youngest contact (by birthdate)</li>
+     *     <li>Oldest contact (by birthdate)</li>
+     *     <li>Most recently created contact (by {@code created_at})</li>
+     *     <li>Oldest (first created) contact (by {@code created_at})</li>
+     * </ul>
+     *
+     * <p>Contacts without birthdays or creation timestamps are ignored for
+     * the corresponding calculations. The details of selected contacts are printed
+     * using {@link #formatShort(Contact, boolean, boolean, LocalDate)}.</p>
+     */
     public void showStatistics() {
         List<Contact> contacts = contactRepository.findAll();
 
@@ -831,7 +1088,6 @@ public class ContactService {
         Contact youngest = null;
         Contact oldest = null;
 
-        // Yaş ortalaması için
         int ageCount = 0;
         int ageSum = 0;
 
@@ -928,7 +1184,20 @@ public class ContactService {
         System.out.println("==========================\n");
     }
 
-
+    /**
+     * Produces a short, customizable text representation of a contact.
+     * <p>
+     * The output includes the contact's basic fields (name, phone, email), and
+     * optionally age and creation timestamp depending on the boolean flags.
+     * Useful for statistics summaries and compact listings.
+     * </p>
+     *
+     * @param c                the contact to format
+     * @param includeAge       whether the age should be included in the output
+     * @param includeCreatedAt whether the creation timestamp should be included
+     * @param today            the date used to calculate age
+     * @return a formatted string representing the contact in short form
+     */
     private String formatShort(Contact c, boolean includeAge, boolean includeCreatedAt, LocalDate today) {
 
         String first = safe(c.getFirstName());
@@ -960,14 +1229,48 @@ public class ContactService {
         return sb.toString();
     }
 
+    /**
+     * Produces a full, detailed multi-line representation of a contact,
+     * including personal information, phone numbers, email, LinkedIn,
+     * and timestamps.
+     * <p>
+     * This method is used for full listings such as search results and
+     * contact detail views.
+     * </p>
+     *
+     * @param c the contact to format
+     * @return a formatted multi-line string containing all contact details
+     */
+
     private String formatContact(Contact c) {
         return "Contact " + c.getContactId() + "\n" + "----------------------------\n" + "First Name     : " + safe(c.getFirstName()) + "\n" + "Middle Name    : " + safe(c.getMiddleName()) + "\n" + "Last Name      : " + safe(c.getLastName()) + "\n" + "Nickname       : " + safe(c.getNickname()) + "\n" + "\n" + "Primary Phone  : " + safe(c.getPhonePrimary()) + "\n" + "Secondary Phone: " + safe(c.getPhoneSecondary()) + "\n" + "\n" + "E-mail         : " + safe(c.getEmail()) + "\n" + "LinkedIn       : " + safe(c.getLinkedinUrl()) + "\n" + "\n" + "Birth Date     : " + safe(c.getBirthDate()) + "\n" + "Created At     : " + safe(c.getCreatedAt()) + "\n" + "Updated At     : " + safe(c.getUpdatedAt()) + "\n";
     }
 
+    /**
+     * Safely converts an object to a string.
+     * Returns an empty string if the object is {@code null}.
+     *
+     * @param o the object to convert
+     * @return the object's string representation, or an empty string if null
+     */
     private String safe(Object o) {
+
         return (o == null) ? "" : o.toString();
     }
 
+    /**
+     * Validates whether a LinkedIn URL is acceptable.
+     * <p>
+     * Rules:
+     * <ul>
+     *     <li>Blank or null values are considered valid (optional field)</li>
+     *     <li>Non-blank values must start with
+     *         {@code https://www.linkedin.com/}</li>
+     * </ul>
+     *
+     * @param linkedin the LinkedIn URL to validate
+     * @return true if valid or optional; false if invalid
+     */
     private boolean safeLinkedIn(String linkedin) {
         if (linkedin == null || linkedin.isBlank()) {
             return true;
@@ -975,6 +1278,22 @@ public class ContactService {
         return linkedin.startsWith("https://www.linkedin.com/");
     }
 
+    /**
+     * Validates the structure of an email address.
+     * <p>
+     * Rules checked:
+     * </p>
+     * <ul>
+     *     <li>Must not be null or blank</li>
+     *     <li>Must contain exactly one '@'</li>
+     *     <li>Must contain at least one '.' after '@'</li>
+     *     <li>Domain part must have a dot (e.g., gmail.com)</li>
+     *     <li>May include only alphanumeric characters or . _ % + - @</li>
+     * </ul>
+     *
+     * @param email the email string to validate
+     * @return true if the email is valid; false otherwise
+     */
     private boolean safeEmail(String email) {
         if (email == null || email.isBlank()) return false;
 
@@ -993,7 +1312,20 @@ public class ContactService {
         return true;
     }
 
-
+    /**
+     * Checks whether a phone number (primary or secondary) is unique across all contacts.
+     * <p>
+     * A phone number is considered unique if no other contact (except the one with
+     * {@code currentId}, if provided) has the same primary or secondary phone value.
+     * </p>
+     *
+     * <p>This is used during add/update operations to prevent duplicate phone numbers
+     * across different contacts.</p>
+     *
+     * @param phone      the phone number to check
+     * @param currentId  the ID of the contact being updated, or {@code null} if adding a new contact
+     * @return {@code true} if the phone number is unique or blank; {@code false} if another contact already uses it
+     */
     private boolean isPhoneUnique(String phone, Integer currentId) {
         if (phone == null || phone.isBlank()) {
             return true;
@@ -1016,6 +1348,17 @@ public class ContactService {
         return true;
     }
 
+    /**
+     * Checks whether an email address is unique across all contacts.
+     * <p>
+     * The email is considered unique if no other contact (except the one with
+     * {@code currentId}, if updating) has the same email value.
+     * </p>
+     *
+     * @param email      the email value to check
+     * @param currentId  the ID of the contact being updated, or {@code null} when adding a new one
+     * @return {@code true} if the email is unique or blank; {@code false} if already used by another contact
+     */
     private boolean isEmailUnique(String email, Integer currentId) {
         if (email == null || email.isBlank()) {
             return true;
@@ -1030,6 +1373,18 @@ public class ContactService {
         return true;
     }
 
+    /**
+     * Checks whether a LinkedIn URL is unique across all contacts.
+     * <p>
+     * Blank URLs are considered valid, and uniqueness is checked only for non-empty values.
+     * The method ensures that no other contact (except the one with {@code currentId})
+     * has the same LinkedIn link.
+     * </p>
+     *
+     * @param url        the LinkedIn URL to validate
+     * @param currentId  the ID of the contact being updated, or {@code null} when adding a new one
+     * @return {@code true} if the URL is unique or blank; {@code false} if already used by another contact
+     */
     private boolean isLinkedinUnique(String url, Integer currentId) {
         if (url == null || url.isBlank()) {
             return true;
@@ -1044,6 +1399,17 @@ public class ContactService {
         return true;
     }
 
+    /**
+     * Checks whether a nickname is unique across all contacts.
+     * <p>
+     * Nickname is a required unique identifier, so this method ensures that
+     * no other contact uses the same nickname (except the current one during update).
+     * </p>
+     *
+     * @param nickname   the nickname to check
+     * @param currentId  the ID of the contact being updated, or {@code null} when adding a new contact
+     * @return {@code true} if the nickname is unique or blank; {@code false} if another contact already uses it
+     */
     private boolean isNicknameUnique(String nickname, Integer currentId) {
         if (nickname == null || nickname.isBlank()) {
             return true;

@@ -15,16 +15,51 @@ import java.util.List;
 
 public class UserService {
 
+    /**
+     * Repository responsible for performing all database operations
+     * related to User entities.
+     */
     private final UserRepository userRepository;
+
+    /**
+     * Manages undoable actions performed within the UserService.
+     * Stores operations that can later be reversed by the user.
+     */
     private final UndoManager undoManager;
 
+    /**
+     * Regular expression used to validate name fields.
+     * <p>
+     * Allows only alphabetic characters, including Turkish letters:
+     * a-z, A-Z, ğ, ü, ş, ö, ç, ı, İ, Ğ, Ü, Ş, Ö, Ç.
+     * </p>
+     */
     private static final String NAME_REGEX = "^[a-zA-ZğüşöçıİĞÜŞÖÇ]+$";
 
+    /**
+     * Creates a new instance of UserService and initializes the required
+     * repository and undo manager components.
+     *
+     * <p>This constructor prepares the service for performing user-related
+     * operations such as creating, updating, deleting users, and managing
+     * undoable actions.</p>
+     */
     public UserService() {
         this.userRepository = new UserRepository();
         this.undoManager = new UndoManager();
     }
 
+    /**
+     * Retrieves and prints a formatted list of all users in the system.
+     * <p>
+     * Only users with the Manager role are allowed to execute this method.
+     * If the acting user does not have Manager privileges, access is denied
+     * and the method returns {@code null}.
+     * </p>
+     *
+     * @param actingUser the user attempting to perform the operation; must have Manager role
+     * @return a list of all users if the caller is a Manager, otherwise {@code null}
+     */
     public List<User> listAllUsers(User actingUser) {
         if (!isManager(actingUser)) {
             System.out.println("Access Denied: Only Managers can list users.");
@@ -46,6 +81,24 @@ public class UserService {
         return users;
     }
 
+    /**
+     * Interactively creates and adds a new user to the system.
+     * <p>
+     * This operation is restricted to users with the Manager role. The method
+     * prompts the acting user to input all required fields (username, password,
+     * name, surname, role, and optionally salary). Each field is validated, and
+     * the acting user may cancel the process at any step by entering "Q".
+     * </p>
+     *
+     * <p>
+     * If the user is successfully created and inserted into the database, the
+     * operation is recorded in the {@link UndoManager} as an undoable action.
+     * </p>
+     *
+     * @param var1 the user attempting to add a new user; must have Manager privileges
+     * @return {@code true} if the user was successfully added,
+     *         {@code false} if cancelled or failed
+     */
     public boolean addUser(User var1) {
         if (!this.isManager(var1)) {
             System.out.println("Access Denied: Only Managers can add users.");
@@ -165,6 +218,19 @@ public class UserService {
         }
     }
 
+    /**
+     * Creates and returns a shallow copy of the given {@link User} object.
+     * <p>
+     * The method copies all basic fields such as ID, username, password hash,
+     * name, surname, role, salary, and creation timestamp. The returned object
+     * is always instantiated as a {@link Manager}, regardless of the original
+     * user's role.
+     * </p>
+     *
+     * @param u the user to be copied; may be {@code null}
+     * @return a new {@link User} object containing the copied data,
+     *         or {@code null} if the input was null
+     */
     private User copyUser(User u) {
         if (u == null)
             return null;
@@ -180,6 +246,29 @@ public class UserService {
         return copy;
     }
 
+    /**
+     * Interactively updates an existing user in the system.
+     * <p>
+     * This operation is restricted to users with the Manager role. The method
+     * first asks for the username of the user to be updated, then allows changing
+     * the name, surname, role and salary. For each field, the current value is
+     * shown and the user can:
+     * </p>
+     * <ul>
+     *   <li>Press Enter to keep the existing value,</li>
+     *   <li>Type a new value to update the field,</li>
+     *   <li>Type {@code Q} at any prompt to cancel the entire update.</li>
+     * </ul>
+     *
+     * <p>
+     * If the update succeeds, the previous state of the user is stored in the
+     * {@link UndoManager} as an {@link UpdateUserCommand} so the change can be undone later.
+     * </p>
+     *
+     * @param var1 the user attempting to perform the update; must have Manager privileges
+     * @return {@code true} if the user was successfully updated,
+     *         {@code false} if cancelled, not found, not authorized, or update failed
+     */
     public boolean updateUser(User var1) {
         if (!this.isManager(var1)) {
             System.out.println("Access Denied: Only Managers can update users.");
@@ -275,6 +364,28 @@ public class UserService {
         }
     }
 
+    /**
+     * Deletes an existing user from the system after confirmation.
+     * <p>
+     * This operation is restricted to users with the Manager role. The acting user
+     * is prompted to enter the username of the user to delete. The method checks:
+     * </p>
+     * <ul>
+     *   <li>whether the target user exists,</li>
+     *   <li>whether the acting user is not trying to delete themselves,</li>
+     *   <li>whether the deletion is confirmed by typing {@code yes}.</li>
+     * </ul>
+     *
+     * <p>
+     * If the deletion succeeds, a snapshot of the deleted user is stored in the
+     * {@link UndoManager} via a {@link DeleteUserCommand} so the operation can
+     * be undone later.
+     * </p>
+     *
+     * @param actingUser the user attempting to delete another user; must have Manager privileges
+     * @return {@code true} if the user was successfully deleted,
+     *         {@code false} if not authorized, cancelled, user not found, or deletion failed
+     */
     public boolean deleteUser(User actingUser) {
         if (!isManager(actingUser)) {
             System.out.println("Access Denied: Only Managers can delete users.");
@@ -314,14 +425,33 @@ public class UserService {
         }
     }
 
+    /**
+     * Checks whether the given user has the Manager role.
+     *
+     * @param user the user to check; may be {@code null}
+     * @return {@code true} if the user exists and has role "Manager",
+     *         {@code false} otherwise
+     */
     private boolean isManager(User user) {
+
         return user != null && "Manager".equalsIgnoreCase(user.getRole());
     }
 
+    /**
+     * Creates a new {@link User} instance based on the provided role name.
+     * <p>
+     * Accepted roles: Tester, Junior, Senior, Manager (case-insensitive).
+     * Returns {@code null} for invalid or unsupported role names.
+     * </p>
+     *
+     * @param role the role name to instantiate; may be {@code null}
+     * @return a new User instance matching the role,
+     *         or {@code null} if the role is invalid
+     */
     private User instantiateRoleUser(String role) {
         if (role == null)
             return null;
-        switch (role.toLowerCase()) {
+        switch(role.toLowerCase()) {
             case "tester":
                 return new Tester();
             case "junior":
@@ -335,6 +465,16 @@ public class UserService {
         }
     }
 
+    /**
+     * Displays statistical information about all users in the system.
+     * <p>
+     * Only Managers are authorized to view statistics. The method counts how many
+     * users belong to each role (Tester, Junior, Senior, Manager) and prints the results
+     * in a formatted output.
+     * </p>
+     *
+     * @param actingUser the user attempting to view statistics; must have Manager privileges
+     */
     public void showUserStatistics(User actingUser) {
         if (actingUser == null || !"Manager".equalsIgnoreCase(actingUser.getRole())) {
             System.out.println("Access Denied: Only Managers can view user statistics.");
@@ -376,6 +516,16 @@ public class UserService {
         System.out.println("=========================\n");
     }
 
+    /**
+     * Prints a formatted salary report for all users.
+     * <p>
+     * Only Managers are allowed to view the salary report. The report includes
+     * each user's username, role, annual salary, and monthly salary. If a user's
+     * salary is {@code null}, it is displayed as 0.
+     * </p>
+     *
+     * @param actingUser the user requesting the salary report; must have Manager privileges
+     */
     public void showSalaryReport(User actingUser) {
         if (!isManager(actingUser)) {
             System.out.println("Access Denied: Only Managers can see salary report.");
@@ -398,6 +548,25 @@ public class UserService {
         System.out.println("=================================");
     }
 
+    /**
+     * Reads a salary input from the console, validating the value and allowing skips.
+     * <p>
+     * The user may:
+     * </p>
+     * <ul>
+     *   <li>Press Enter to skip salary input (returns {@code null})</li>
+     *   <li>Type {@code Q} to skip salary input (returns {@code null})</li>
+     *   <li>Enter a valid number between 0 and 1,000,000 (supports '.' or ',' decimals)</li>
+     * </ul>
+     *
+     * <p>
+     * The method ensures that the salary is within valid numeric bounds and handles
+     * invalid formats gracefully.
+     * </p>
+     *
+     * @param var1 the prompt message displayed before reading salary input
+     * @return a valid salary as {@code Double}, or {@code null} if skipped
+     */
     private Double readSalaryOrNull(String var1) {
         while (true) {
             System.out.print(var1);
@@ -430,6 +599,17 @@ public class UserService {
         }
     }
 
+    /**
+     * Checks whether the given role string represents a valid user role.
+     * <p>
+     * Valid roles (case-insensitive):
+     * Tester, Junior, Senior, Manager.
+     * </p>
+     *
+     * @param role the input role string to validate; may be {@code null}
+     * @return {@code true} if the role is one of the supported values,
+     *         {@code false} otherwise
+     */
     private boolean isValidRole(String role) {
         if (role == null)
             return false;
@@ -437,13 +617,36 @@ public class UserService {
         return r.equals("tester") || r.equals("junior") || r.equals("senior") || r.equals("manager");
     }
 
+    /**
+     * Capitalizes the first letter of the given string and lowercases the rest.
+     * <p>
+     * Example:
+     * <ul>
+     *   <li>"manager" → "Manager"</li>
+     *   <li>"JUNIOR" → "Junior"</li>
+     * </ul>
+     * </p>
+     *
+     * @param str the string to transform; may be {@code null}
+     * @return the capitalized form of the string,
+     *         or the original value if {@code null} or empty
+     */
     private String capitalize(String str) {
         if (str == null || str.isEmpty())
             return str;
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 
+    /**
+     * Reverts the most recent user-related operation, if available.
+     * <p>
+     * This method delegates to the {@link UndoManager}, which maintains a stack
+     * of undoable actions such as adding, updating, or deleting users.
+     * If no undoable action exists, the call has no effect.
+     * </p>
+     */
     public void undoLastUserOperation() {
+
         undoManager.undoLast();
     }
 }
