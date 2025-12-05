@@ -2,6 +2,8 @@ package models;
 
 import input.Input;
 import services.ContactService;
+import menu.MenuItems;
+import static menu.MenuUtils.*;
 
 public class Tester extends User {
 
@@ -15,30 +17,34 @@ public class Tester extends User {
     @Override
     public void showUserMenu() {
         while (true) {
-            System.out.println();
-            System.out.println("=== TESTER MENU ===");
-            System.out.println("1) List all contacts");
-            System.out.println("2) Search by single field");
-            System.out.println("3) Search by multiple fields");
-            System.out.println("4) Sort contacts");
-            System.out.println("5) Change password");
-            System.out.println("0) Logout");
-            System.out.print("Your choice: ");
+            clear();
+            printMenuHeader("TESTER DASHBOARD");
+            printCentered("User: " + getName() + " " + getSurname(), CYAN);
+            System.out.println(); 
+
+            printOption("1", "List all contacts");
+            printOption("2", "Search by single field");
+            printOption("3", "Search by multiple fields");
+            printOption("4", "Sort contacts");
+            printOption("5", "Change password");
+            printOption("0", "Logout");
+            
+            printPrompt();
 
             String choice = Input.scanner.nextLine().trim();
 
             switch (choice) {
                 case "1":
-                    listAllContacts();
+                    contactService.listAllContacts();
                     break;
                 case "2":
-                    searchBySingleField();
+                    contactService.searchBySingleField();
                     break;
                 case "3":
-                    searchByMultipleFields();
+                    contactService.searchByMultipleFields();
                     break;
                 case "4":
-                    sortContacts();
+                    contactService.sortContacts();
                     break;
                 case "5":
                     changePassword();
@@ -47,29 +53,18 @@ public class Tester extends User {
                     logout();
                     return; 
                 default:
-                    System.out.println("Invalid choice, try again.");
+                    System.out.println(RED + "Invalid choice, try again." + RESET);
+                    sleep(1000);
+            }
+            
+            if(!choice.equals("0")) {
+                System.out.println("\n" + YELLOW + "Press Enter to return to menu..." + RESET);
+                Input.scanner.nextLine();
             }
         }
     }
-
-
-    private void listAllContacts() {
-      
-        contactService.listAllContacts(); 
-    }
-
-    private void searchBySingleField() {   
-
-        contactService.searchBySingleField();
-    }
-
-    private void searchByMultipleFields() {
-
-        contactService.searchByMultipleFields();  
-    }
-
-    private void sortContacts() {
-      
-        contactService.sortContacts();  
-    }
+    private void listAllContacts() { contactService.listAllContacts(); }
+    private void searchBySingleField() { contactService.searchBySingleField(); }
+    private void searchByMultipleFields() { contactService.searchByMultipleFields(); }
+    private void sortContacts() { contactService.sortContacts(); }
 }
