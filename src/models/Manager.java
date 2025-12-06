@@ -3,6 +3,7 @@ package models;
 import input.Input;
 import services.ContactService;
 import services.UserService;
+import menu.MenuUtils;  
 
 /**
  * Represents a user with the "Manager" role, the administrative authority of the system.
@@ -63,19 +64,22 @@ public class Manager extends User {
         ContactService contactService = new ContactService();
 
         while (true) {
-            System.out.println("\n=== MANAGER MENU ===");
-            System.out.println("Hello, " + getName() + " " + getSurname());
-            System.out.println("1) List all users");
-            System.out.println("2) Add new user");
-            System.out.println("3) Update existing user");
-            System.out.println("4) Delete/Fire user");
-            System.out.println("5) Contact Statistics");
-            System.out.println("6) User Statistics");
-            System.out.println("7) Show salary report");
-            System.out.println("8) Change password");
-            System.out.println("9) Undo last operation");
-            System.out.println("0) Logout");
-            System.out.print("Your choice: ");
+            MenuUtils.clear(); 
+            MenuUtils.printMenuHeader("MANAGER MENU"); 
+            MenuUtils.printCentered("Hello, " + getName() + " " + getSurname(), MenuUtils.CYAN);
+            System.out.println();
+            MenuUtils.printOption("1", "List all users");
+            MenuUtils.printOption("2", "Add new user");
+            MenuUtils.printOption("3", "Update existing user");
+            MenuUtils.printOption("4", "Delete/Fire user");
+            MenuUtils.printOption("5", "Contact Statistics");
+            MenuUtils.printOption("6", "User Statistics");
+            MenuUtils.printOption("7", "Show salary report");
+            MenuUtils.printOption("8", "Change password");
+            MenuUtils.printOption("9", "Undo last operation");
+            MenuUtils.printOption("0", "Logout");
+
+            MenuUtils.printPrompt(); 
 
             String choice = Input.scanner.nextLine().trim();
 

@@ -1,16 +1,16 @@
 import menu.MenuItems;
 import menu.MenuUtils;
+import static animations.DiscoPartyOnTheFloor.runGoodbyeSequence;
+import static menu.MenuUtils.*;
 import models.User;
 import services.AuthService;
-
-import static menu.MenuUtils.*;
-
-import animations.DiscoPartyOnTheFloor;
+import input.Input;
 
 public class Main {
     public static void main(String[] args) {
 
         AuthService authService = new AuthService();
+        
         MenuItems.runStartupSequence();
 
         while (true) {
@@ -30,16 +30,17 @@ public class Main {
             printOption("0", "Exit");
             printPrompt();
 
-            String choice = input.Input.scanner.nextLine().trim();
+            String choice = Input.scanner.nextLine().trim();
 
             if (choice.equals("0")) {
-                DiscoPartyOnTheFloor.runGoodbyeSequence();
+                runGoodbyeSequence();
                 break;
             } else if (!choice.equals("1")) {
                 printCentered("Invalid choice.", RED);
                 sleep(1000);
                 continue;
             }
+            
             MenuItems.showTransition("Authenticating...");
             clear();
             printMenuHeader("USER LOGIN");

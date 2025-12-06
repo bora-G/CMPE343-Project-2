@@ -3,7 +3,7 @@ package services;
 import input.Input;
 import models.*;
 import repository.UserRepository;
-
+import menu.MenuUtils;
 import services.AuthService;
 
 import Undo.UndoManager;
@@ -67,8 +67,9 @@ public class UserService {
         }
 
         List<User> users = userRepository.findAll();
-        System.out.println("\n--- User List ---");
-        System.out.printf("%-5s %-15s %-15s %-15s %-10s%n", "ID", "Username", "Name", "Surname", "Role");
+        MenuUtils.printMenuHeader("USER LIST");
+        System.out.printf(MenuUtils.CYAN + "%-5s %-15s %-15s %-15s %-10s" + MenuUtils.RESET + "%n", "ID", "Username", "Name", "Surname", "Role");
+        System.out.println("----------------------------------------------------------------");
         for (User user : users) {
             System.out.printf("%-5d %-15s %-15s %-15s %-10s%n",
                     user.getUserId(),
@@ -483,8 +484,9 @@ public class UserService {
 
         List<User> users = userRepository.findAll();
 
-        System.out.println("\n=== USER STATISTICS ===");
-        System.out.println("Total users: " + users.size());
+        MenuUtils.printMenuHeader("USER STATISTICS");
+        MenuUtils.printCentered("Total users: " + users.size(), MenuUtils.YELLOW);
+        System.out.println();
 
         int testers = 0;
         int juniors = 0;
@@ -509,11 +511,13 @@ public class UserService {
             }
         }
 
-        System.out.println("Tester:  " + testers);
-        System.out.println("Junior:  " + juniors);
-        System.out.println("Senior:  " + seniors);
-        System.out.println("Manager: " + managers);
-        System.out.println("=========================\n");
+        System.out.println(MenuUtils.spaces(30) + "Tester:  " + testers);
+        System.out.println(MenuUtils.spaces(30) + "Junior:  " + juniors);
+        System.out.println(MenuUtils.spaces(30) + "Senior:  " + seniors);
+        System.out.println(MenuUtils.spaces(30) + "Manager: " + managers);
+        
+        MenuUtils.printCentered("=========================");
+        System.out.println();
     }
 
     /**

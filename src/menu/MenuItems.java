@@ -94,11 +94,8 @@ public class MenuItems {
             putText(frameBuffer, width, textStartY + 2, (width - statusText.length()) / 2, statusText);
 
             int barY = textStartY + 5;
-            // Bar çerçevesi
             putChar(frameBuffer, width, (width - (barLength + 2)) / 2, barY, '[');
             putChar(frameBuffer, width, (width - (barLength + 2)) / 2 + 1 + barLength, barY, ']');
-
-            // Bar doluluğu
             int barStartX = (width - (barLength + 2)) / 2 + 1;
             for (int j = 0; j < barLength; j++) {
                 char ch = (j <= step) ? '#' : '.';
@@ -136,7 +133,7 @@ public class MenuItems {
     private static char showLoginOrRestartScreen() {
         while (true) {
             clear();
-            printMenuHeader("PROJECT INTRO COMPLETED");
+            printMenuHeader("WELCOME!");
             
             printOption("S", "Login to System");
             printOption("R", "Restart Animation");

@@ -1,5 +1,5 @@
 package models;
-
+import menu.MenuUtils;
 import input.Input;
 import services.ContactService;
 
@@ -57,19 +57,21 @@ public class Junior extends User {
         ContactService contactService = new ContactService();
 
         while (true) {
-            System.out.println("\n=== JUNIOR MENU ===");
-            System.out.println("1) List all contacts");
-            System.out.println("2) Search by single field");
-            System.out.println("3) Search by multiple fields");
-            System.out.println("4) Sort contacts");
-            System.out.println("5) Update existing contact");
-            System.out.println("6) Change password");
-            System.out.println("7) Undo last operation");
-            System.out.println("0) Logout");
-            System.out.print("Your choice: ");
+            MenuUtils.clear();
+            MenuUtils.printMenuHeader("JUNIOR MENU");
+            MenuUtils.printCentered("Welcome, " + getName(), MenuUtils.CYAN);
+            System.out.println();
+            MenuUtils.printOption("1", "List all contacts");
+            MenuUtils.printOption("2", "Search by single field");
+            MenuUtils.printOption("3", "Search by multiple fields");
+            MenuUtils.printOption("4", "Sort contacts");
+            MenuUtils.printOption("5", "Update existing contact");
+            MenuUtils.printOption("6", "Change password");
+            MenuUtils.printOption("7", "Undo last operation");
+            MenuUtils.printOption("0", "Logout");
+            MenuUtils.printPrompt();
 
             String choice = Input.scanner.nextLine().trim();
-
             switch (choice) {
 
                 case "1":
