@@ -1,4 +1,5 @@
 package animations;
+import menu.MenuUtils;
 
 /**
  * Provides a simple console-based introduction animation that displays
@@ -76,39 +77,38 @@ public class ProjectIntroAnimation {
                 "Mikail Karacaer"
         };
 
-        int finalIndent = 15;
-        int slideSteps  = 12;
+        int finalIndent = (MenuUtils.CONSOLE_WIDTH - 20) / 2;;
+        int slideSteps  = 20;
 
         for (int i = 0; i < names.length; i++) {
             for (int step = 0; step <= slideSteps; step++) {
                 clear();
                 System.out.println();
-                System.out.println(spaces(15) + WHITE + BOLD + "PROJECT TEAM" + RESET);
-                System.out.println(spaces(15) + CYAN + "------------------------" + RESET);
+                MenuUtils.printCentered("PROJECT TEAM", WHITE + BOLD);
+                MenuUtils.printCentered("------------------------", CYAN);
                 System.out.println();
-
                 for (int j = 0; j < i; j++) {
                     System.out.println(spaces(finalIndent) + WHITE + "- " + names[j] + RESET);
                 }
 
-                int currentIndent = 3 + step;
+                int currentIndent = (finalIndent - slideSteps) + step;
                 if (currentIndent > finalIndent) currentIndent = finalIndent;
                 System.out.println(spaces(currentIndent) + WHITE + "- " + names[i] + RESET);
 
-                sleep(60);
+                sleep(40);
             }
         }
 
-        clear();
+        clear();    
         System.out.println();
-        System.out.println(spaces(15) + WHITE + BOLD + "PROJECT TEAM" + RESET);
-        System.out.println(spaces(15) + CYAN + "------------------------" + RESET);
+        MenuUtils.printCentered("PROJECT TEAM", WHITE + BOLD);
+        MenuUtils.printCentered("------------------------", CYAN);
         System.out.println();
         for (String name : names) {
             System.out.println(spaces(finalIndent) + WHITE + "- " + name + RESET);
         }
 
-        sleep(800);
+        sleep(1500);
     }
 
     /**

@@ -6,7 +6,7 @@ import repository.ContactRepository;
 import input.Input;
 import input.MenuInput;
 import input.DateInput;
-
+import menu.MenuUtils;
 import java.time.Period;
 
 import Undo.UndoManager;
@@ -83,20 +83,24 @@ public class ContactService {
     public List<Contact> searchBySingleField() {
         List<Contact> results = new ArrayList<>();
 
-        System.out.println("\n=== Search by Single Field ===");
-        System.out.println("Which field do you want to search in?");
-        System.out.println("1- Contact ID");
-        System.out.println("2- First Name");
-        System.out.println("3- Middle Name");
-        System.out.println("4- Last Name");
-        System.out.println("5- Nickname");
-        System.out.println("6- Primary Phone Number");
-        System.out.println("7- Secondary Phone Number");
-        System.out.println("8- E-mail (by domain or part)");
-        System.out.println("9- LinkedIn (exists / not)");
-        System.out.println("10- Birth Date");
-        System.out.println("11- Creation Date");
-        System.out.println("12- Update Date");
+        MenuUtils.clear();
+        MenuUtils.printMenuHeader("SEARCH BY SINGLE FIELD");
+        MenuUtils.printCentered("Which field do you want to search in?", MenuUtils.WHITE);
+        System.out.println();
+        MenuUtils.printOption("1", "Contact ID");
+        MenuUtils.printOption("2", "First Name");
+        MenuUtils.printOption("3", "Middle Name");
+        MenuUtils.printOption("4", "Last Name");
+        MenuUtils.printOption("5", "Nickname");
+        MenuUtils.printOption("6", "Primary Phone Number");
+        MenuUtils.printOption("7", "Secondary Phone Number");
+        MenuUtils.printOption("8", "E-mail (by domain or part)");
+        MenuUtils.printOption("9", "LinkedIn (exists / not)");
+        MenuUtils.printOption("10", "Birth Date");
+        MenuUtils.printOption("11", "Creation Date");
+        MenuUtils.printOption("12", "Update Date");
+
+        System.out.println();
 
         Integer choice = MenuInput.readMenuChoice(1, 12, "Select field");
         if (choice == null) {
@@ -195,8 +199,10 @@ public class ContactService {
      *         an empty list if no filters were selected or no matches were found.
      */
     public List<Contact> searchByMultipleFields() {
-        System.out.println("\n=== Multi-Field Search ===");
-        System.out.println("Add filters one by one. Enter '0' to execute search.");
+        MenuUtils.clear();
+        MenuUtils.printMenuHeader("MULTI-FIELD SEARCH");
+        MenuUtils.printCentered("Add filters one by one. Enter '0' to execute search.", MenuUtils.CYAN);
+        System.out.println();
 
         Map<String, String> criteria = new HashMap<>();
 
@@ -205,12 +211,12 @@ public class ContactService {
                 System.out.println("Current filters: " + criteria);
             }
 
-            System.out.println("1- First Name");
-            System.out.println("2- Last Name");
-            System.out.println("3- Phone Number");
-            System.out.println("4- Email");
-            System.out.println("5- Nickname");
-            System.out.println("0- EXECUTE SEARCH");
+            MenuUtils.printOption("1", "First Name");
+            MenuUtils.printOption("2", "Last Name");
+            MenuUtils.printOption("3", "Phone Number");
+            MenuUtils.printOption("4", "Email");
+            MenuUtils.printOption("5", "Nickname");
+            MenuUtils.printOption("0", "EXECUTE SEARCH");
 
             Integer choice = MenuInput.readMenuChoice(0, 5, "Add Filter");
             if (choice == null || choice == 0) break;
@@ -281,20 +287,22 @@ public class ContactService {
      * @return a sorted list of contacts, or an empty list if an invalid selection was made.
      */
     public List<Contact> sortContacts() {
-        System.out.println("\n=== Sort Contacts ===");
-        System.out.println("Which field do you want to sort by?");
-        System.out.println("1- Contact ID");
-        System.out.println("2- First Name");
-        System.out.println("3- Middle Name");
-        System.out.println("4- Last Name");
-        System.out.println("5- Nickname");
-        System.out.println("6- Primary Phone Number");
-        System.out.println("7- Secondary Phone Number");
-        System.out.println("8- E-mail");
-        System.out.println("9- LinkedIn URL");
-        System.out.println("10- Birth Date");
-        System.out.println("11- Creation Date");
-        System.out.println("12- Update Date");
+        MenuUtils.clear();
+        MenuUtils.printMenuHeader("SORT CONTACTS");
+        MenuUtils.printCentered("Which field do you want to sort by?");
+        System.out.println();
+        MenuUtils.printOption("1", "Contact ID");
+        MenuUtils.printOption("2", "First Name");
+        MenuUtils.printOption("3", "Middle Name");
+        MenuUtils.printOption("4", "Last Name");
+        MenuUtils.printOption("5", "Nickname");
+        MenuUtils.printOption("6", "Primary Phone Number");
+        MenuUtils.printOption("7", "Secondary Phone Number");
+        MenuUtils.printOption("8", "E-mail");
+        MenuUtils.printOption("9", "LinkedIn URL");
+        MenuUtils.printOption("10", "Birth Date");
+        MenuUtils.printOption("11", "Creation Date");
+        MenuUtils.printOption("12", "Update Date");
 
         Integer fieldChoice = MenuInput.readMenuChoice(1, 12, "Select field to sort by");
         if (fieldChoice == null) return new ArrayList<>();
@@ -339,8 +347,11 @@ public class ContactService {
                 break;
         }
 
-        System.out.println("1- Ascending (A-Z / Oldest First)");
-        System.out.println("2- Descending (Z-A / Newest First)");
+        System.out.println();
+        MenuUtils.printCentered("Select Direction");
+        MenuUtils.printOption("1", "Ascending (A-Z / Oldest First)");
+        MenuUtils.printOption("2", "Descending (Z-A / Newest First)");
+        
         Integer dirChoice = MenuInput.readMenuChoice(1, 2, "Select direction");
         String dir = (dirChoice != null && dirChoice == 2) ? "DESC" : "ASC";
 

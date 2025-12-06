@@ -1,6 +1,7 @@
 package models;
 
 import input.Input;
+import menu.MenuUtils;
 import services.ContactService;
 
 /**
@@ -63,21 +64,24 @@ public class Senior extends User {
         ContactService contactService = new ContactService();
 
         while (true) {
-            System.out.println("\n=== SENIOR MENU ===");
-            System.out.println("1) List all contacts");
-            System.out.println("2) Search by single field");
-            System.out.println("3) Search by multiple fields");
-            System.out.println("4) Sort contacts");
-            System.out.println("5) Add new contact");
-            System.out.println("6) Update contact");
-            System.out.println("7) Delete contact");
-            System.out.println("8) Change password");
-            System.out.println("9) Undo last operation");
-            System.out.println("0) Logout");
-            System.out.print("Your choice: ");
+            MenuUtils.clear();
+            MenuUtils.printMenuHeader("SENIOR MENU");
+            MenuUtils.printCentered("Welcome, " + getName(), MenuUtils.CYAN);
+            System.out.println();
+            MenuUtils.printOption("1", "List all contacts");
+            MenuUtils.printOption("2", "Search by single field");
+            MenuUtils.printOption("3", "Search by multiple fields");
+            MenuUtils.printOption("4", "Sort contacts");
+            MenuUtils.printOption("5", "Add new contact");
+            MenuUtils.printOption("6", "Update contact");
+            MenuUtils.printOption("7", "Delete contact");
+            MenuUtils.printOption("8", "Change password");
+            MenuUtils.printOption("9", "Undo last operation");
+            MenuUtils.printOption("0", "Logout");
+
+            MenuUtils.printPrompt();
 
             String choice = Input.scanner.nextLine().trim();
-
             switch (choice) {
 
                 case "1":
