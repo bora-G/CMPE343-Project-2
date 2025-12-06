@@ -14,7 +14,7 @@ import java.time.format.DateTimeParseException;
  * All inputs loop until a valid value is entered or the user types {@code Q}
  * to cancel and return {@code null}.
  * </p>
- *
+ * @author Can
  * <p>
  * This class cannot be instantiated and is designed for static access only.
  * It relies on {@link Input#scanner}, which should be a globally shared
@@ -37,7 +37,7 @@ public class DateInput {
      *     <li>Rejects dates that occur in the future</li>
      * </ul>
      * </p>
-     *
+     * @author Bora
      * @param prompt the text displayed before requesting input
      * @return a valid {@link LocalDate}, or {@code null} if the user chooses to exit
      */
@@ -74,7 +74,7 @@ public class DateInput {
      *     <li>Typing {@code Q} to cancel</li>
      * </ul>
      * </p>
-     *
+     * @author Bora
      * @return an integer between 1 and 31, or {@code null} if cancelled
      */
     public static Integer readDay() {
@@ -101,7 +101,7 @@ public class DateInput {
      * <p>
      * Allows cancellation with {@code Q}.
      * </p>
-     *
+     * @author Can
      * @return an integer between 1 and 12, or {@code null} if cancelled
      */
     public static Integer readMonth() {
@@ -133,7 +133,7 @@ public class DateInput {
      *     <li>Allows {@code Q} to cancel</li>
      * </ul>
      * </p>
-     *
+     * @author Can
      * @return a valid year integer, or {@code null} if cancelled
      */
     public static Integer readYear() {

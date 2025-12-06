@@ -48,6 +48,7 @@ public class Junior extends User {
      * <li>Change password.</li>
      * <li>Undo the last operation (specifically updates).</li>
      * <li>Logout.</li>
+     * @author Melek
      * </ol>
      * </p>
      */
@@ -76,30 +77,37 @@ public class Junior extends User {
 
                 case "1":
                     contactService.listAllContacts();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "2":
                     contactService.searchBySingleField();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "3":
                     contactService.searchByMultipleFields();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "4":
                     contactService.sortContacts();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "5":
                     contactService.updateContact(this);
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "6":
                     changePassword();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "7":
                     contactService.undoLastOperation();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "0":

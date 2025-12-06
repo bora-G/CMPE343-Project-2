@@ -50,6 +50,7 @@ public abstract class User {
      * returns a generic {@code User} object, but calling this method triggers the
      * specific behavior of the actual subclass (e.g., Manager menu vs. Tester menu).
      * </p>
+     * @author Bora
      */
     public abstract void showUserMenu();
 
@@ -59,6 +60,7 @@ public abstract class User {
      * Delegates the logic to the {@link services.AuthService}. This is a concrete method
      * available to all user roles.
      * </p>
+     * @author Bora
      */
     public void changePassword() {
         AuthService authService = new AuthService();
@@ -73,6 +75,7 @@ public abstract class User {
      * Gets the user's salary.
      *
      * @return The salary amount.
+     * @author Bora
      */
     public Double getSalary() {
         return salary;
@@ -82,6 +85,7 @@ public abstract class User {
      * Sets the user's salary.
      *
      * @param salary The salary amount to set.
+     *  @author Bora
      */
     public void setSalary(Double salary) {
         this.salary = salary;
@@ -93,6 +97,7 @@ public abstract class User {
      * Displays a logout message. In a console application, this typically results
      * in returning to the main login loop.
      * </p>
+     * @author Bora
      */
     public void logout() {
          System.out.println("Logging out...");
@@ -101,6 +106,7 @@ public abstract class User {
     /**
      * Gets the unique user ID.
      * @return The user ID.
+     * @author Bora
      */
     public int getUserId() {
         return userId;
@@ -109,6 +115,7 @@ public abstract class User {
     /**
      * Sets the unique user ID.
      * @param userId The user ID to set.
+     * @author Bora
      */
     public void setUserId(int userId) {
         this.userId = userId;
@@ -117,6 +124,7 @@ public abstract class User {
     /**
      * Gets the timestamp of the last update to the user record.
      * @return The update date.
+     * @author Bora
      */
     public Date getUpdated_at() {
         return updated_at;
@@ -125,6 +133,7 @@ public abstract class User {
     /**
      * Sets the timestamp of the last update.
      * @param updated_at The update date to set.
+     * @author Bora
      */
     public void setUpdated_at(Date updated_at) {
         this.updated_at = updated_at;
@@ -133,6 +142,7 @@ public abstract class User {
     /**
      * Gets the timestamp of when the user record was created.
      * @return The creation date.
+     * @author Bora
      */
     public Date getCreated_at() {
         return created_at;
@@ -141,6 +151,7 @@ public abstract class User {
     /**
      * Sets the timestamp of creation.
      * @param created_at The creation date to set.
+     *  @author Bora
      */
     public void setCreated_at(Date created_at) {
         this.created_at = created_at;
@@ -149,6 +160,7 @@ public abstract class User {
     /**
      * Gets the role name of the user (e.g., "Manager", "Tester").
      * @return The role string.
+     * @author Bora
      */
     public String getRole() {
         return role;
@@ -157,6 +169,7 @@ public abstract class User {
     /**
      * Sets the role name of the user.
      * @param role The role string to set.
+     * @author Bora
      */
     public void setRole(String role) {
         this.role = role;
@@ -165,6 +178,7 @@ public abstract class User {
     /**
      * Gets the surname of the user.
      * @return The surname.
+     * @author Bora
      */
     public String getSurname() {
         return surname;
@@ -173,6 +187,7 @@ public abstract class User {
     /**
      * Sets the surname of the user.
      * @param surname The surname to set.
+     * @author Bora
      */
     public void setSurname(String surname) {
         this.surname = surname;
@@ -181,6 +196,7 @@ public abstract class User {
     /**
      * Gets the first name of the user.
      * @return The first name.
+     * @author Bora
      */
     public String getName() {
         return name;
@@ -189,6 +205,7 @@ public abstract class User {
     /**
      * Sets the first name of the user.
      * @param name The first name to set.
+     *             @author Bora
      */
     public void setName(String name) {
         this.name = name;
@@ -197,6 +214,7 @@ public abstract class User {
     /**
      * Gets the encrypted password hash.
      * @return The password hash.
+     * @author Bora
      */
     public String getPassword_hash() {
         return password_hash;
@@ -205,6 +223,7 @@ public abstract class User {
     /**
      * Sets the encrypted password hash.
      * @param password_hash The hash to set.
+     *                      @author Bora
      */
     public void setPassword_hash(String password_hash) {
         this.password_hash = password_hash;
@@ -213,6 +232,7 @@ public abstract class User {
     /**
      * Gets the username used for login.
      * @return The username.
+     * @author Bora
      */
     public String getUsername() {
         return username;
@@ -221,6 +241,7 @@ public abstract class User {
     /**
      * Sets the username.
      * @param username The username to set.
+     *  @author Bora
      */
     public void setUsername(String username) {
         this.username = username;

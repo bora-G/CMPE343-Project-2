@@ -17,7 +17,7 @@ import repository.UserRepository;
  * their previous state.
  * </p>
  *
- * @author [Group Members Names Here]
+ * @author Bora
  * @version 1.0
  * @see Undo.Command
  * @see repository.UserRepository

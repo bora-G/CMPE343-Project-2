@@ -18,6 +18,7 @@ public class UserService {
     /**
      * Repository responsible for performing all database operations
      * related to User entities.
+     *
      */
     private final UserRepository userRepository;
 
@@ -56,7 +57,7 @@ public class UserService {
      * If the acting user does not have Manager privileges, access is denied
      * and the method returns {@code null}.
      * </p>
-     *
+     * @author Melek
      * @param actingUser the user attempting to perform the operation; must have Manager role
      * @return a list of all users if the caller is a Manager, otherwise {@code null}
      */
@@ -95,7 +96,8 @@ public class UserService {
      * If the user is successfully created and inserted into the database, the
      * operation is recorded in the {@link UndoManager} as an undoable action.
      * </p>
-     *
+     * @author Melek
+     * @author Bora
      * @param var1 the user attempting to add a new user; must have Manager privileges
      * @return {@code true} if the user was successfully added,
      *         {@code false} if cancelled or failed
@@ -227,7 +229,7 @@ public class UserService {
      * is always instantiated as a {@link Manager}, regardless of the original
      * user's role.
      * </p>
-     *
+     * @author Melek
      * @param u the user to be copied; may be {@code null}
      * @return a new {@link User} object containing the copied data,
      *         or {@code null} if the input was null
@@ -265,7 +267,8 @@ public class UserService {
      * If the update succeeds, the previous state of the user is stored in the
      * {@link UndoManager} as an {@link UpdateUserCommand} so the change can be undone later.
      * </p>
-     *
+     * @author Melek
+     * @author Bora
      * @param var1 the user attempting to perform the update; must have Manager privileges
      * @return {@code true} if the user was successfully updated,
      *         {@code false} if cancelled, not found, not authorized, or update failed
@@ -382,7 +385,7 @@ public class UserService {
      * {@link UndoManager} via a {@link DeleteUserCommand} so the operation can
      * be undone later.
      * </p>
-     *
+     * @author Melek
      * @param actingUser the user attempting to delete another user; must have Manager privileges
      * @return {@code true} if the user was successfully deleted,
      *         {@code false} if not authorized, cancelled, user not found, or deletion failed
@@ -428,7 +431,7 @@ public class UserService {
 
     /**
      * Checks whether the given user has the Manager role.
-     *
+     * @author Melek
      * @param user the user to check; may be {@code null}
      * @return {@code true} if the user exists and has role "Manager",
      *         {@code false} otherwise
@@ -473,7 +476,8 @@ public class UserService {
      * users belong to each role (Tester, Junior, Senior, Manager) and prints the results
      * in a formatted output.
      * </p>
-     *
+     * @author Melek
+     * @author Bora
      * @param actingUser the user attempting to view statistics; must have Manager privileges
      */
     public void showUserStatistics(User actingUser) {
@@ -527,7 +531,7 @@ public class UserService {
      * each user's username, role, annual salary, and monthly salary. If a user's
      * salary is {@code null}, it is displayed as 0.
      * </p>
-     *
+     * @author Bora
      * @param actingUser the user requesting the salary report; must have Manager privileges
      */
     public void showSalaryReport(User actingUser) {
@@ -567,7 +571,7 @@ public class UserService {
      * The method ensures that the salary is within valid numeric bounds and handles
      * invalid formats gracefully.
      * </p>
-     *
+     * @author Bora
      * @param var1 the prompt message displayed before reading salary input
      * @return a valid salary as {@code Double}, or {@code null} if skipped
      */
@@ -609,7 +613,7 @@ public class UserService {
      * Valid roles (case-insensitive):
      * Tester, Junior, Senior, Manager.
      * </p>
-     *
+     * @author Melek
      * @param role the input role string to validate; may be {@code null}
      * @return {@code true} if the role is one of the supported values,
      *         {@code false} otherwise
@@ -630,7 +634,7 @@ public class UserService {
      *   <li>"JUNIOR" → "Junior"</li>
      * </ul>
      * </p>
-     *
+     * @author Melek
      * @param str the string to transform; may be {@code null}
      * @return the capitalized form of the string,
      *         or the original value if {@code null} or empty
@@ -647,6 +651,7 @@ public class UserService {
      * This method delegates to the {@link UndoManager}, which maintains a stack
      * of undoable actions such as adding, updating, or deleting users.
      * If no undoable action exists, the call has no effect.
+     * @author Bora
      * </p>
      */
     public void undoLastUserOperation() {

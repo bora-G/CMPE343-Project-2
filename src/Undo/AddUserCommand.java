@@ -11,7 +11,7 @@ import repository.UserRepository;
  * reverted by deleting that specific user record from the database.
  * </p>
  *
- * @author [Group Members Names Here]
+ * @author Bora
  * @version 1.0
  * @see Undo.Command
  * @see repository.UserRepository

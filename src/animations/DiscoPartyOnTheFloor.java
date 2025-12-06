@@ -98,7 +98,8 @@ public class DiscoPartyOnTheFloor {
      * First shows a single static frame, then waits for the user to
      * press ENTER and starts the disco animation for a fixed duration.
      * </p>
-     *
+     * @author Mikail
+     * @author Can
      * @param args command-line arguments (not used)
      * @throws Exception if reading from {@code System.in} fails
      */
@@ -119,6 +120,8 @@ public class DiscoPartyOnTheFloor {
      *     <li>Draws static light beams</li>
      *     <li>Renders a non-rotating disco ball</li>
      *     <li>Places the dancers in their default poses</li>
+     *     @author Mikail
+     *     @author Can
      * </ul>
      * The frame is printed once to the console.
      * </p>
@@ -224,7 +227,8 @@ public class DiscoPartyOnTheFloor {
      * </ul>
      * The loop stops when the given duration (in milliseconds) has elapsed.
      * </p>
-     *
+     *     @author Mikail
+     *     @author Can
      * @param durationMillis duration of the animation in milliseconds
      * @throws InterruptedException if {@link Thread#sleep(long)} is interrupted
      */
@@ -345,7 +349,8 @@ public class DiscoPartyOnTheFloor {
      * are copied into the frame buffer at the specified starting
      * position.
      * </p>
-     *
+     * @author Mikail
+     * @author Can
      * @param buffer the character buffer representing the whole frame
      * @param width  frame width in characters
      * @param height frame height in characters
@@ -383,6 +388,25 @@ public class DiscoPartyOnTheFloor {
             }
         }
     }
+
+    /**
+     * Runs the goodbye sequence animation on the console, showing a disco scene
+     * with a checkered dance floor, a hanging disco ball, multiple dancing figures,
+     * and a final ASCII-art "GOODBYE" banner.
+     *
+     * <p>The method:
+     * <ul>
+     *   <li>Initializes frame and depth buffers based on the configured WIDTH and HEIGHT</li>
+     *   <li>Draws a tiled dance floor and a hanging disco ball</li>
+     *   <li>Animates dancers moving away from the center over multiple frames</li>
+     *   <li>Gradually adds a stylized "GOODBYE" ASCII text after a certain frame</li>
+     *   <li>Renders each frame to the console with basic coloring</li>
+     * </ul>
+     * @author Mikail
+     * @author Can
+     * <p>After the animation finishes, the console is cleared and a farewell
+     * message is printed.</p>
+     */
     public static void runGoodbyeSequence() {
         int width = WIDTH;
         int height = HEIGHT;

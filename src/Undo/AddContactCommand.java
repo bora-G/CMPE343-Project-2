@@ -14,7 +14,7 @@ import repository.ContactRepository;
  * method calls the repository's delete method using the stored contact ID.
  * </p>
  *
- * @author [Group Members Names Here]
+ * @author Bora
  * @version 1.0
  * @see Undo.Command
  * @see repository.ContactRepository

@@ -39,7 +39,7 @@ public class UserRepository {
      * <p>
      * Uses {@code BINARY username = ?} so the lookup is case-sensitive.
      * </p>
-     *
+     * @author Mikail
      * @param username the username to search for
      * @return a {@link User} if found, otherwise {@code null}
      */
@@ -71,7 +71,7 @@ public class UserRepository {
 
     /**
      * Updates the password hash of a user.
-     *
+     *@author Bora
      * @param userId          the id of the user whose password will be updated
      * @param newPasswordHash the new password hash value
      * @return {@code true} if at least one row was updated, otherwise {@code false}
@@ -90,7 +90,7 @@ public class UserRepository {
 
     /**
      * Retrieves all users from the database ordered by {@code user_id}.
-     *
+     *@author Melek
      * @return a list of all users, never {@code null}
      */
     public List<User> findAll() {
@@ -114,7 +114,7 @@ public class UserRepository {
      * On successful insert, the generated {@code user_id} is set
      * on the given {@link User} instance.
      * </p>
-     *
+     * @author Can
      * @param user the user to insert
      * @return {@code true} if at least one row was inserted, otherwise {@code false}
      */
@@ -145,7 +145,7 @@ public class UserRepository {
 
       /**
      * Deletes a user with the given id.
-     *
+     * @author Mikail
      * @param userId the id of the user to delete
      * @return {@code true} if a row was deleted, otherwise {@code false}
      */
@@ -166,7 +166,7 @@ public class UserRepository {
      * because {@code User} itself is likely abstract or has abstract behavior
      * (e.g. {@link User#showUserMenu()}).
      * </p>
-     *
+     * @author Melek
      * @param resultSet the result set positioned at a valid row
      * @return a populated {@link User} instance
      * @throws SQLException if reading from the result set fails
@@ -194,7 +194,7 @@ public class UserRepository {
 
      /**
      * Ensures that a valid database connection is obtained.
-     *
+     * @author Mikail
      * @return an open {@link Connection}
      * @throws SQLException if the connection cannot be created
      */
@@ -208,7 +208,7 @@ public class UserRepository {
 
       /**
      * Updates all editable fields of a user, including salary.
-     *
+     * @author Can
      * @param user the user containing updated values; its {@code userId} must be set
      * @return {@code true} if at least one row was updated, otherwise {@code false}
      */
@@ -245,15 +245,13 @@ public class UserRepository {
      * <p>
      * The only purpose is to provide a non-abstract type so rows from the database
      * can be mapped into usable objects, without implementing any real menu logic.
+     * @author Mikail
      * </p>
      */
     private static class BasicUser extends User {
         @Override
-         /**
-         * No-op implementation. The repository layer does not need to display menus.
-         */
         public void showUserMenu() {
-            // Intentionally empty, repository only needs a concrete subtype.
+
         }
     }
 }

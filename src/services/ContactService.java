@@ -77,7 +77,7 @@ public class ContactService {
      * - Birth, creation, and update dates
      *
      * The method prints the search results and returns them as a list.
-     *
+     * @author Bora
      * @return a list of contacts matching the selected search criteria.
      */
     public List<Contact> searchBySingleField() {
@@ -194,7 +194,7 @@ public class ContactService {
      *
      * After collecting all criteria, the method delegates the query to
      * {@link ContactRepository#searchByMultipleCriteria(Map)} and prints the results.
-     *
+     * @author Can
      * @return a list of contacts matching all specified filters;
      *         an empty list if no filters were selected or no matches were found.
      */
@@ -283,7 +283,7 @@ public class ContactService {
      *
      * After determining the sort preferences, the method delegates to
      * {@link ContactRepository#findAllSorted(String, String)} and prints the results.
-     *
+     * @author Can
      * @return a sorted list of contacts, or an empty list if an invalid selection was made.
      */
     public List<Contact> sortContacts() {
@@ -385,7 +385,8 @@ public class ContactService {
      *
      * <p>On successful insertion into the repository, an {@link AddContactCommand}
      * is pushed to the {@link UndoManager} to allow undoing this operation later.</p>
-     *
+     * @author Bora
+     * @author Can
      * @param actingUser the user attempting to add a new contact; used for role-based access control
      * @return {@code true} if the contact is successfully added; {@code false} if
      *         access is denied, the operation is canceled by the user, or insertion fails
@@ -574,7 +575,7 @@ public class ContactService {
      * operations to ensure that modifications do not affect the stored reference of
      * the original contact.
      * </p>
-     *
+     * @author Can
      * @param c the contact to copy; must not be null
      * @return a new {@code Contact} instance with all fields duplicated from the original
      */
@@ -621,7 +622,8 @@ public class ContactService {
      *     <li>If the update succeeds, an {@link UpdateContactCommand} is pushed to
      *         the {@link UndoManager} for undo support.</li>
      * </ol>
-     *
+     * @author Can
+     * @author Bora
      * @param actingUser the user attempting to update the contact; used for role checks
      * @return {@code true} if the contact is successfully updated;
      *         {@code false} if access is denied, input is invalid, update is cancelled,
@@ -857,7 +859,7 @@ public class ContactService {
      *     <li>If confirmed, deletes the contact and pushes a {@link DeleteContactCommand}
      *         to the {@link UndoManager} for undo support.</li>
      * </ol>
-     *
+     * @author Can
      * @param actingUser the user attempting to delete the contact; used for role-based access control
      * @return {@code true} if the contact is successfully deleted; {@code false} if
      *         access is denied, the contact is not found, the operation is cancelled,
@@ -911,7 +913,7 @@ public class ContactService {
      * by a visual divider. If the list is {@code null} or empty, a
      * {@code "No records found."} message is displayed instead.
      * </p>
-     *
+     * @author Can
      * @param contacts the list of contacts to print; may be {@code null} or empty
      */
     private void printResults(List<Contact> contacts) {
@@ -938,7 +940,7 @@ public class ContactService {
      * name, which is then used to search the specified database field via
      * {@link ContactRepository#searchByField(String, String)}.
      * </p>
-     *
+     * @author Can
      * @param dbField     the name of the database column to search in (e.g. {@code "first_name"})
      * @param displayName the human-readable name of the field shown in the prompt
      * @return a list of contacts whose given field contains the entered value;
@@ -964,7 +966,7 @@ public class ContactService {
      *
      * <p>Entering {@code 'Q'} (in any case) cancels the input and causes this method
      * to return {@code null}.</p>
-     *
+     * @author Bora
      * @param scanner the {@link Scanner} used to read input from the console
      * @param message the prompt message displayed to the user
      * @return a valid 10-digit phone number as a {@link String}, or {@code null} if the user cancels with 'Q'
@@ -1002,7 +1004,7 @@ public class ContactService {
      * <p>Depending on the selected mode, the method constructs a pattern string
      * (using underscores for wildcard parts) and delegates the search to
      * {@link ContactRepository#searchByField(String, String)}.</p>
-     *
+     * @author Bora
      * @param fieldName the name of the date field in the database (e.g. {@code "birth_date"})
      * @param label     a human-readable label used in prompts (e.g. {@code "Birth Date"})
      * @return a list of contacts whose specified date field matches the chosen criteria;
@@ -1082,7 +1084,8 @@ public class ContactService {
      *     <li>Most recently created contact (by {@code created_at})</li>
      *     <li>Oldest (first created) contact (by {@code created_at})</li>
      * </ul>
-     *
+     * @author Can
+     * @author Bora
      * <p>Contacts without birthdays or creation timestamps are ignored for
      * the corresponding calculations. The details of selected contacts are printed
      * using {@link #formatShort(Contact, boolean, boolean, LocalDate)}.</p>
@@ -1202,7 +1205,7 @@ public class ContactService {
      * optionally age and creation timestamp depending on the boolean flags.
      * Useful for statistics summaries and compact listings.
      * </p>
-     *
+     * @author Bora
      * @param c                the contact to format
      * @param includeAge       whether the age should be included in the output
      * @param includeCreatedAt whether the creation timestamp should be included
@@ -1248,7 +1251,7 @@ public class ContactService {
      * This method is used for full listings such as search results and
      * contact detail views.
      * </p>
-     *
+     * @author Can
      * @param c the contact to format
      * @return a formatted multi-line string containing all contact details
      */
@@ -1278,7 +1281,7 @@ public class ContactService {
      *     <li>Non-blank values must start with
      *         {@code https://www.linkedin.com/}</li>
      * </ul>
-     *
+     * @author Bora
      * @param linkedin the LinkedIn URL to validate
      * @return true if valid or optional; false if invalid
      */
@@ -1301,7 +1304,7 @@ public class ContactService {
      *     <li>Domain part must have a dot (e.g., gmail.com)</li>
      *     <li>May include only alphanumeric characters or . _ % + - @</li>
      * </ul>
-     *
+     * @author Bora
      * @param email the email string to validate
      * @return true if the email is valid; false otherwise
      */
@@ -1332,7 +1335,7 @@ public class ContactService {
      *
      * <p>This is used during add/update operations to prevent duplicate phone numbers
      * across different contacts.</p>
-     *
+     * @author Bora
      * @param phone      the phone number to check
      * @param currentId  the ID of the contact being updated, or {@code null} if adding a new contact
      * @return {@code true} if the phone number is unique or blank; {@code false} if another contact already uses it
@@ -1365,7 +1368,7 @@ public class ContactService {
      * The email is considered unique if no other contact (except the one with
      * {@code currentId}, if updating) has the same email value.
      * </p>
-     *
+     * @author Bora
      * @param email      the email value to check
      * @param currentId  the ID of the contact being updated, or {@code null} when adding a new one
      * @return {@code true} if the email is unique or blank; {@code false} if already used by another contact
@@ -1391,7 +1394,7 @@ public class ContactService {
      * The method ensures that no other contact (except the one with {@code currentId})
      * has the same LinkedIn link.
      * </p>
-     *
+     * @author Bora
      * @param url        the LinkedIn URL to validate
      * @param currentId  the ID of the contact being updated, or {@code null} when adding a new one
      * @return {@code true} if the URL is unique or blank; {@code false} if already used by another contact
@@ -1416,7 +1419,7 @@ public class ContactService {
      * Nickname is a required unique identifier, so this method ensures that
      * no other contact uses the same nickname (except the current one during update).
      * </p>
-     *
+     * @author Bora
      * @param nickname   the nickname to check
      * @param currentId  the ID of the contact being updated, or {@code null} when adding a new contact
      * @return {@code true} if the nickname is unique or blank; {@code false} if another contact already uses it

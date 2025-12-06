@@ -26,7 +26,7 @@ public class MenuInput {
      *     <li>Repeats the prompt until valid input is provided</li>
      * </ul>
      * </p>
-     *
+     * @author Mikail
      * @param min    the minimum allowed menu value
      * @param max    the maximum allowed menu value
      * @param prompt the text displayed before asking for input

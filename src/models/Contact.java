@@ -34,7 +34,7 @@ public class Contact {
 
     /**
      * Gets the unique identifier for this contact.
-     *
+     * @author Can
      * @return The contact ID (Primary Key).
      */
     public int getContactId() {
@@ -43,7 +43,7 @@ public class Contact {
 
     /**
      * Sets the unique identifier for this contact.
-     *
+     * @author Can
      * @param contactId The contact ID to set.
      */
     public void setContactId(int contactId) {
@@ -62,7 +62,7 @@ public class Contact {
     /**
      * Sets the first name of the contact.
      * <p>This is a mandatory field.</p>
-     *
+     * @author Can
      * @param firstName The first name to set.
      */
     public void setFirstName(String firstName) {
@@ -71,7 +71,7 @@ public class Contact {
 
     /**
      * Gets the middle name of the contact.
-     *
+     *@author Can
      * @return The middle name, or {@code null} if not set.
      */
     public String getMiddleName() {
@@ -81,7 +81,7 @@ public class Contact {
     /**
      * Sets the middle name of the contact.
      * <p>This is an optional field.</p>
-     *
+     *@author Can
      * @param middleName The middle name to set.
      */
     public void setMiddleName(String middleName) {
@@ -90,7 +90,7 @@ public class Contact {
 
     /**
      * Gets the last name of the contact.
-     *
+     *@author Can
      * @return The last name.
      */
     public String getLastName() {
@@ -100,7 +100,7 @@ public class Contact {
     /**
      * Sets the last name of the contact.
      * <p>This is a mandatory field.</p>
-     *
+     *@author Can
      * @param lastName The last name to set.
      */
     public void setLastName(String lastName) {
@@ -109,7 +109,7 @@ public class Contact {
 
     /**
      * Gets the nickname of the contact.
-     *
+     *@author Can
      * @return The nickname.
      */
     public String getNickname() {
@@ -118,7 +118,7 @@ public class Contact {
 
     /**
      * Sets the nickname of the contact.
-     *
+     *@author Can
      * @param nickname The nickname to set.
      */
     public void setNickname(String nickname) {
@@ -127,7 +127,7 @@ public class Contact {
 
     /**
      * Gets the primary phone number.
-     *
+     *@author Can
      * @return The primary phone number string.
      */
     public String getPhonePrimary() {
@@ -137,7 +137,7 @@ public class Contact {
     /**
      * Sets the primary phone number.
      * <p>This is a mandatory field.</p>
-     *
+     *@author Can
      * @param phonePrimary The 10-digit phone number to set.
      */
     public void setPhonePrimary(String phonePrimary) {
@@ -146,7 +146,7 @@ public class Contact {
 
     /**
      * Gets the secondary phone number.
-     *
+     *@author Can
      * @return The secondary phone number, or {@code null} if not set.
      */
     public String getPhoneSecondary() {
@@ -156,7 +156,7 @@ public class Contact {
     /**
      * Sets the secondary phone number.
      * <p>This is an optional field.</p>
-     *
+     *@author Can
      * @param phoneSecondary The secondary phone number to set.
      */
     public void setPhoneSecondary(String phoneSecondary) {
@@ -165,7 +165,7 @@ public class Contact {
 
     /**
      * Gets the email address.
-     *
+     *@author Can
      * @return The email address.
      */
     public String getEmail() {
@@ -174,7 +174,7 @@ public class Contact {
 
     /**
      * Sets the email address.
-     *
+     *@author Can
      * @param email The email address to set.
      */
     public void setEmail(String email) {
@@ -183,7 +183,7 @@ public class Contact {
 
     /**
      * Gets the LinkedIn profile URL.
-     *
+     *@author Can
      * @return The LinkedIn URL, or {@code null} if not set.
      */
     public String getLinkedinUrl() {
@@ -193,7 +193,7 @@ public class Contact {
     /**
      * Sets the LinkedIn profile URL.
      * <p>This is an optional field.</p>
-     *
+     *@author Can
      * @param linkedinUrl The URL string to set.
      */
     public void setLinkedinUrl(String linkedinUrl) {
@@ -201,17 +201,17 @@ public class Contact {
     }
 
     /**
-     * Gets the birth date of the contact.
-     *
-     * @return The birth date.
+     * Gets the birthdate of the contact.
+     *@author Can
+     * @return The birthdate.
      */
     public Date getBirthDate() {
         return birthDate;
     }
 
     /**
-     * Sets the birth date of the contact.
-     *
+     * Sets the birthdate of the contact.
+     *@author Can
      * @param birthDate The SQL Date object representing the birth date.
      */
     public void setBirthDate(Date birthDate) {
@@ -220,7 +220,7 @@ public class Contact {
 
     /**
      * Gets the timestamp of when the record was created.
-     *
+     *@author Can
      * @return The creation timestamp.
      */
     public Timestamp getCreatedAt() {
@@ -229,7 +229,7 @@ public class Contact {
 
     /**
      * Sets the timestamp of when the record was created.
-     *
+     *@author Can
      * @param createdAt The timestamp to set.
      */
     public void setCreatedAt(Timestamp createdAt) {
@@ -238,7 +238,7 @@ public class Contact {
 
     /**
      * Gets the timestamp of when the record was last updated.
-     *
+     *@author Can
      * @return The update timestamp.
      */
     public Timestamp getUpdatedAt() {
@@ -247,7 +247,7 @@ public class Contact {
 
     /**
      * Sets the timestamp of when the record was last updated.
-     *
+     *@author Can
      * @param updatedAt The timestamp to set.
      */
     public void setUpdatedAt(Timestamp updatedAt) {

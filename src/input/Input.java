@@ -28,6 +28,7 @@ public class Input {
      * This scanner should not be closed, because closing it would also
      * close {@code System.in}, preventing further user input.
      * </p>
+     *
      */
     public static final Scanner scanner = new Scanner(System.in);
 

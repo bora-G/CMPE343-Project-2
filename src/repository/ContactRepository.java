@@ -34,7 +34,7 @@ public class ContactRepository {
 
      /**
      * Retrieves all contacts from the database ordered by {@code contact_id}.
-     *
+     * @author Bora
      * @return list of all contacts, never {@code null}
      */
     public List<Contact> findAll() {
@@ -53,7 +53,7 @@ public class ContactRepository {
 
     /**
      * Finds a single contact by its unique identifier.
-     *
+     * @author Melek
      * @param contactId the primary key of the contact
      * @return the matching {@link Contact}, or {@code null} if not found
      */
@@ -78,33 +78,35 @@ public class ContactRepository {
      * <p>
      * For example, this can be used to find an exact email or phone number match.
      * </p>
-     *
+     * @author Can
      * @param field the column name to search on (must be a valid contacts column)
      * @param value the exact value to match
      * @return list of contacts where the given field exactly equals the given value
      */
-    public List<Contact> searchByFieldExact(String field, String value) {
-        String sql = "SELECT contact_id, first_name, middle_name, last_name, nickname, " +
-                "phone_primary, phone_secondary, email, linkedin_url, birth_date, created_at, updated_at " +
-                "FROM contacts WHERE " + field + " COLLATE utf8mb4_bin = ?";
+public List<Contact> searchByFieldExact(String field, String value) {
+    String sql =
+        "SELECT contact_id, first_name, middle_name, last_name, nickname, " +
+        "phone_primary, phone_secondary, email, linkedin_url, birth_date, created_at, updated_at " +
+        "FROM contacts WHERE LOWER(" + field + ") = LOWER(?)";
 
-        List<Contact> results = new ArrayList<>();
+    List<Contact> results = new ArrayList<>();
 
-        try (Connection connection = requireConnection();
-             PreparedStatement st = connection.prepareStatement(sql)) {
+    try (Connection connection = requireConnection();
+         PreparedStatement st = connection.prepareStatement(sql)) {
 
-            st.setString(1, value);
-            try (ResultSet rs = st.executeQuery()) {
-                while (rs.next()) {
-                    results.add(mapRow(rs));
-                }
+        st.setString(1, value);
+
+        try (ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                results.add(mapRow(rs));
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Exact search failed for field: " + field, e);
         }
-
-        return results;
+    } catch (SQLException e) {
+        throw new RuntimeException("Exact search failed for field: " + field, e);
     }
+
+    return results;
+}
 
 
     /**
@@ -113,7 +115,7 @@ public class ContactRepository {
      * If the insertion succeeds, the generated {@code contact_id} is
      * set on the given {@link Contact} instance.
      * </p>
-     *
+     * @author Mikail
      * @param contact the contact to insert
      * @return {@code true} if at least one row was inserted, otherwise {@code false}
      */
@@ -145,6 +147,7 @@ public class ContactRepository {
      *
      * @param contact the contact containing updated data; its {@code contactId}
      *                must be set
+     * @author Mikail
      * @return {@code true} if at least one row was updated, otherwise {@code false}
      */
     public boolean update(Contact contact) {
@@ -163,7 +166,7 @@ public class ContactRepository {
 
     /**
      * Deletes a contact by its identifier.
-     *
+     * @author Melek
      * @param contactId the id of the contact to delete
      * @return {@code true} if a row was deleted, otherwise {@code false}
      */
@@ -184,30 +187,38 @@ public class ContactRepository {
      * This method is useful for partial matches, for example searching
      * for contacts whose first name contains a substring.
      * </p>
-     *
+     * @author Can
      * @param field the column name to search on (must be a valid contacts column)
      * @param value the value used in the LIKE expression (wrapped with {@code %})
      * @return list of matching contacts
      */
-    public List<Contact> searchByField(String field, String value) {
-        String sql = "SELECT * FROM contacts WHERE " + field + " COLLATE utf8mb4_bin LIKE ?";
-        List<Contact> results = new ArrayList<>();
+public List<Contact> searchByField(String field, String value) {
 
-        try (Connection connection = requireConnection();
-             PreparedStatement st = connection.prepareStatement(sql)) {
+    String sql =
+        "SELECT contact_id, first_name, middle_name, last_name, nickname, " +
+        "phone_primary, phone_secondary, email, linkedin_url, birth_date, created_at, updated_at " +
+        "FROM contacts " +
+        "WHERE BINARY LOWER(" + field + ") LIKE BINARY LOWER(?)";
 
-            st.setString(1, "%" + value + "%");
-            ResultSet rs = st.executeQuery();
+    List<Contact> results = new ArrayList<>();
 
+    try (Connection connection = requireConnection();
+         PreparedStatement st = connection.prepareStatement(sql)) {
+
+        // contains arama: %value%
+        st.setString(1, "%" + value + "%");
+
+        try (ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 results.add(mapRow(rs));
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("Search failed for field: " + field, e);
         }
-
-        return results;
+    } catch (SQLException e) {
+        throw new RuntimeException("Search failed for field: " + field, e);
     }
+
+    return results;
+}
 
     /**
      * Searches contacts based on whether they have a LinkedIn URL or not.
@@ -215,6 +226,7 @@ public class ContactRepository {
      * @param hasLinkedin if {@code true}, returns only contacts with a non-empty
      *                    LinkedIn URL; if {@code false}, returns contacts with no
      *                    LinkedIn URL
+     * @author Mikail
      * @return list of contacts matching the LinkedIn presence condition
      */
     public List<Contact> searchByLinkedinPresence(boolean hasLinkedin) {
@@ -253,42 +265,49 @@ public class ContactRepository {
      * </ul>
      * All criteria are combined with {@code AND}.
      * </p>
-     *
+     * @author Can
      * @param criteria map of field names to search values
      * @return list of contacts matching all criteria; empty list if criteria is
      *         {@code null} or empty
      */
-    public List<Contact> searchByMultipleCriteria(Map<String, String> criteria) {
-        if (criteria == null || criteria.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM contacts WHERE 1=1");
-        List<Object> values = new ArrayList<>();
-
-        for (Map.Entry<String, String> entry : criteria.entrySet()) {
-            sqlBuilder.append(" AND ").append(entry.getKey()).append(" LIKE ?");
-            values.add("%" + entry.getValue() + "%");
-        }
-
-        List<Contact> results = new ArrayList<>();
-        try (Connection connection = requireConnection();
-             PreparedStatement st = connection.prepareStatement(sqlBuilder.toString())) {
-
-            for (int i = 0; i < values.size(); i++) {
-                st.setObject(i + 1, values.get(i));
-            }
-
-            try (ResultSet rs = st.executeQuery()) {
-                while (rs.next()) {
-                    results.add(mapRow(rs));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Multi-field search failed", e);
-        }
-        return results;
+public List<Contact> searchByMultipleCriteria(Map<String, String> criteria) {
+    if (criteria == null || criteria.isEmpty()) {
+        return new ArrayList<>();
     }
+
+    StringBuilder sqlBuilder = new StringBuilder(
+        "SELECT contact_id, first_name, middle_name, last_name, nickname, " +
+        "phone_primary, phone_secondary, email, linkedin_url, birth_date, created_at, updated_at " +
+        "FROM contacts WHERE 1=1"
+    );
+
+    List<Object> values = new ArrayList<>();
+
+    for (Map.Entry<String, String> entry : criteria.entrySet()) {
+        sqlBuilder.append(" AND BINARY LOWER(")
+                  .append(entry.getKey())
+                  .append(") LIKE BINARY LOWER(?)");
+        values.add("%" + entry.getValue() + "%");
+    }
+
+    List<Contact> results = new ArrayList<>();
+    try (Connection connection = requireConnection();
+         PreparedStatement st = connection.prepareStatement(sqlBuilder.toString())) {
+
+        for (int i = 0; i < values.size(); i++) {
+            st.setObject(i + 1, values.get(i));
+        }
+
+        try (ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                results.add(mapRow(rs));
+            }
+        }
+    } catch (SQLException e) {
+        throw new RuntimeException("Multi-field search failed", e);
+    }
+    return results;
+}
 
     /**
      * Returns all contacts sorted by a given column and direction.
@@ -298,7 +317,7 @@ public class ContactRepository {
      * to {@code first_name}. Direction defaults to {@code ASC} unless
      * {@code DESC} is explicitly requested.
      * </p>
-     *
+     * @author Can
      * @param sortField     column name to sort by
      * @param sortDirection {@code "ASC"} or {@code "DESC"} (case-insensitive)
      * @return sorted list of contacts
@@ -335,7 +354,7 @@ public class ContactRepository {
 
     /**
      * Ensures a non-null database connection is obtained.
-     *
+     * @author Bora
      * @return an active {@link Connection}
      * @throws SQLException if the connection cannot be created
      */
@@ -349,7 +368,7 @@ public class ContactRepository {
 
     /**
      * Binds the common contact fields to the given prepared statement.
-     *
+     * @author Melek
      * @param statement the statement to bind parameters to
      * @param contact   the contact whose fields will be bound
      * @return the next parameter index after the last bound field
@@ -371,7 +390,7 @@ public class ContactRepository {
 
      /**
      * Sets a nullable string parameter on a prepared statement.
-     *
+     * @author Mikail
      * @param statement      the statement
      * @param parameterIndex the parameter index (1-based)
      * @param value          the string value or {@code null}
@@ -392,6 +411,7 @@ public class ContactRepository {
      * @param parameterIndex the parameter index (1-based)
      * @param value          the date value or {@code null}
      * @throws SQLException if a JDBC error occurs
+       * @author Mikail
      */
     private void setNullableDate(PreparedStatement statement, int parameterIndex, Date value) throws SQLException {
         if (value == null) {
@@ -406,6 +426,7 @@ public class ContactRepository {
      *
      * @param resultSet the result set positioned at a valid row
      * @return a populated {@link Contact} instance
+      * @author Melek
      * @throws SQLException if a JDBC error occurs while reading columns
      */
     private Contact mapRow(ResultSet resultSet) throws SQLException {

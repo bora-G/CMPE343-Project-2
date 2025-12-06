@@ -16,7 +16,7 @@ import repository.ContactRepository;
  * old state, effectively discarding the new changes.
  * </p>
  *
- * @author [Group Members Names Here]
+ * @author Bora
  * @version 1.0
  * @see Undo.Command
  * @see repository.ContactRepository

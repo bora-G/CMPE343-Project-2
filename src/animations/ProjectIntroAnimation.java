@@ -10,6 +10,8 @@ import menu.MenuUtils;
  * of team members one by one, sliding them into place to create a
  * smooth animated effect.
  * </p>
+ * @author Mikail
+ * @author Can
  */
 public class ProjectIntroAnimation {
 
@@ -28,6 +30,8 @@ public class ProjectIntroAnimation {
      * This method resets the cursor to the top-left and clears all printed
      * characters, simulating a fresh screen for animations.
      * </p>
+     * @author Mikail
+     * @author Can
      */
     private static void clear() {
         System.out.print("\033[H\033[2J");
@@ -49,6 +53,8 @@ public class ProjectIntroAnimation {
      *
      * @param n the number of spaces to generate
      * @return a string containing {@code n} consecutive space characters
+     * @author Mikail
+     * @author Can
      */
     private static String spaces(int n) {
         if (n <= 0) return "";
@@ -68,6 +74,8 @@ public class ProjectIntroAnimation {
      * </ul>
      * After all names are presented, a final static list is shown.
      * </p>
+      * * @author Mikail
+      * @author Can
      */
     private static void showGroupMembers() {
         String[] names = {
@@ -125,7 +133,8 @@ public class ProjectIntroAnimation {
      * Running this class directly will show the full animation
      * without requiring integration into another part of the project.
      * </p>
-     *
+     * @author Mikail
+     * @author Can
      * @param args not used
      */
     public static void main(String[] args) {

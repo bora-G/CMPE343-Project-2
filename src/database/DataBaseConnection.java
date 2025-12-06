@@ -52,6 +52,7 @@ public class DataBaseConnection {
      *
      * @return a valid {@link Connection} object if successful,
      *         or {@code null} if the connection attempt fails
+     * @author Bora
      */
     public static Connection getConnection() {
         try {

@@ -15,7 +15,7 @@ import java.util.Deque;
  * Undo operations following update, add, or delete actions" .
  * </p>
  *
- * @author [Group Members Names Here]
+ * @author Bora
  * @version 1.0
  * @see Undo.Command
  */

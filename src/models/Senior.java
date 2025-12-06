@@ -55,6 +55,7 @@ public class Senior extends User {
      * <li>Change password.</li>
      * <li>Undo last operation (Add, Update, or Delete).</li>
      * <li>Logout.</li>
+     * @author Mikail
      * </ol>
      * </p>
      */
@@ -86,38 +87,47 @@ public class Senior extends User {
 
                 case "1":
                     contactService.listAllContacts();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "2":
                     contactService.searchBySingleField();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "3":
                     contactService.searchByMultipleFields();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "4":
                     contactService.sortContacts();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "5":
                     contactService.addContact(this);
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "6":
                     contactService.updateContact(this);
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "7":
                     contactService.deleteContact(this);
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "8":
                     changePassword();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "9":
                     contactService.undoLastOperation();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "0":

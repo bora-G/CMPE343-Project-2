@@ -37,6 +37,7 @@ public class Tester extends User {
      * Constructs a new Tester user.
      * <p>
      * Sets the role identifier to "Tester" and initializes the contact service.
+     * @author Melek
      * </p>
      */
     public Tester() {
@@ -47,8 +48,9 @@ public class Tester extends User {
     /**
      * Displays the interactive menu specific to the Tester role.
      * <p>
-     * Provides a loop allowing the user to select read-only operations until they choose to logout.
+     * Provides a loop allowing the user to select read-only operations until they choose to log out.
      * The menu options correspond exactly to the permissions outlined in the project requirements table.
+     * @author Melek
      * </p>
      */
     @Override
@@ -71,18 +73,23 @@ MenuUtils.clear();
             switch (choice) {
                 case "1":
                     listAllContacts();
+                    MenuUtils.waitForEnter();
                     break;
                 case "2":
                     searchBySingleField();
+                    MenuUtils.waitForEnter();
                     break;
                 case "3":
                     searchByMultipleFields();
+                    MenuUtils.waitForEnter();
                     break;
                 case "4":
                     sortContacts();
+                    MenuUtils.waitForEnter();
                     break;
                 case "5":
                     changePassword();
+                    MenuUtils.waitForEnter();
                     break;
                 case "0":
                     logout();
@@ -96,6 +103,7 @@ MenuUtils.clear();
 
     /**
      * Delegates the "List all contacts" operation to the ContactService.
+     * @author Melek
      */
     private void listAllContacts() {
       
@@ -104,6 +112,7 @@ MenuUtils.clear();
 
     /**
      * Delegates the "Search by single field" operation to the ContactService.
+     * @author Melek
      */
     private void searchBySingleField() {   
 
@@ -112,6 +121,7 @@ MenuUtils.clear();
 
     /**
      * Delegates the "Search by multiple fields" operation to the ContactService.
+     * @author Melek
      */
     private void searchByMultipleFields() {
 
@@ -120,6 +130,7 @@ MenuUtils.clear();
 
     /**
      * Delegates the "Sort contacts" operation to the ContactService.
+     * @author Melek
      */
     private void sortContacts() {
       

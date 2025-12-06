@@ -37,6 +37,8 @@ public class DiscoBallRenderer {
      * @param centerY     vertical center point where the disco ball will be drawn
      * @param radius      radius of the disco ball in projection space
      * @param aspectRatio scaling factor used to correct vertical stretching in character-based terminals
+    *  @author Can
+    *  @author Mikail
      */
     public static void renderBall(
             char[] frameBuffer,

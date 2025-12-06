@@ -55,6 +55,7 @@ public class Manager extends User {
      * <li>Change Password.</li>
      * <li>Undo last user operation (e.g., undo firing a user).</li>
      * <li>Logout.</li>
+     * @author Bora
      * </ol>
      * </p>
      */
@@ -86,30 +87,39 @@ public class Manager extends User {
             switch (choice) {
                 case "1":
                     userService.listAllUsers(this);
+                    MenuUtils.waitForEnter();
                     break;
                 case "2":
                     userService.addUser(this);
+                    MenuUtils.waitForEnter();
                     break;
                 case "3":
                     userService.updateUser(this);
+                    MenuUtils.waitForEnter();
                     break;
                 case "4":
                     userService.deleteUser(this);
+                    MenuUtils.waitForEnter();
                     break;
                 case "5":
                     contactService.showStatistics();
+                    MenuUtils.waitForEnter();
                     break;
                 case "6":
                     userService.showUserStatistics(this);
+                    MenuUtils.waitForEnter();
                     break;
                 case "7":
                     userService.showSalaryReport(this);
+                    MenuUtils.waitForEnter();
                     break;
                 case "8":
                     changePassword();
+                    MenuUtils.waitForEnter();
                     break;
                 case "9":
                     userService.undoLastUserOperation();
+                    MenuUtils.waitForEnter();
                     break;
 
                 case "0":

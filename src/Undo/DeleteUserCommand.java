@@ -15,7 +15,7 @@ import repository.UserRepository;
  * {@link User} object back into the database using the repository.
  * </p>
  *
- * @author [Group Members Names Here]
+ * @author Bora
  * @version 1.0
  * @see Undo.Command
  * @see repository.UserRepository
